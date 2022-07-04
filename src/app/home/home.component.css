@@ -1,0 +1,66 @@
+* {
+    box-sizing: border-box;
+
+}
+
+/* body {
+    background-color: #ffd89b;
+    background-color: -webkit-linear-gradient(to top, #19547b, #ffd89b); 
+    background-color: linear-gradient(to top, #19547b, #ffd89b);
+    height: 100%;
+} */
+
+/* body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    font-family: 'Roboto', sans-serif;
+    height: 100vh;
+    margin: -20px 0 50px;
+}  */
+
+
+
+.welcome {
+    justify-content: center;
+    text-align: center;
+    align-items: center;
+    margin-top: 30px;
+}
+
+h1, h3 {
+    color: #FFF;
+    padding: 5px;
+}
+
+.auth {
+    justify-content: center;
+    text-align: center;
+    align-items: center;
+    padding: 20px;
+}
+
+button {
+    margin: 5px;
+    border-radius: 6px;
+}
+
+.card {
+    border-radius: 20px;
+}
+
+
+.options select{
+    width: 120px;
+    background-color: #fff;
+    display: flex;
+    margin: 10px 0 10px 0;
+    border: 2px solid grey;
+    border-radius: 5px;
+}
+
+
+.btn {
+    margin-left: 0px;
+}

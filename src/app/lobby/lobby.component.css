@@ -1,0 +1,99 @@
+button {
+    background-color: #347474; 
+    border: none;
+    margin: 5px;
+    border-radius: 6px;
+}
+
+.btn {
+    background-color: #347474; 
+    border: none;
+}
+
+.btn:hover {
+    background-color: #2c6161; 
+}
+
+.card {
+    flex-direction: row;
+    border-radius: 20px;
+    margin:50px 0 50px 0;
+    left: 35%;
+}
+
+.card-title {
+    color: #fff;
+    font-size: 28px;
+}
+
+.card-body {
+    min-width: 250px;
+    padding: 40px;
+}
+
+
+.options select{
+    width: 120px;
+    background-color: #c94b4b33;
+    color: #fff;
+    border: 2px solid #c94b4bc6;
+    display: flex;
+    margin: 10px 0 10px 0;
+    padding: 5px 3px;
+    border-radius: 5px;
+}
+
+
+.btn {
+    margin-left: 0px;
+}
+
+.lobby {
+    height: 93.2vh;
+    overflow: hidden;
+}
+
+
+.matchs {
+    background-color:#c94b4b33;
+    border: 1px solid #c94b4bc6;
+    border-radius: 10px;
+    padding: 10px 0 10px 0;
+    margin-bottom: 20px;
+    display: flex;
+    flex-direction: row;
+
+}
+
+.match-info {
+    display: flex;
+    padding: 0 50px 0 50px;
+}
+
+.match-info h3 {
+    color: #fff;
+    font-size: 20px;
+    letter-spacing: 1px;
+    width: 200px;
+    margin-bottom: 0;
+    line-height: 1.5;
+}
+
+
+.join button {
+    background-color: #347474; 
+    color: #fff;
+    width: 80px;
+    padding: 2px;
+    font-size: 18px;
+    border: none;
+    margin:0 10px 0 10px;
+}
+
+.join button:hover {
+    background-color: #2c6161;
+    transition: color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+
+}
+
+

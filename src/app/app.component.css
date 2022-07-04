@@ -1,0 +1,37 @@
+
+.navbar {
+    background-color: #1c1d1e !important;
+}
+
+.nav-link {
+    color: #f0f0f0 !important;
+}
+
+.nav-link:hover {
+    color: #f05a22 !important;
+}
+
+.nav-item button {
+    border-radius: 5px;
+    background-color: #f05a22;
+    border: 2px solid #f05a22;
+    color: #FFFFFF;
+    font-weight: 500;
+    letter-spacing: .5px;
+    text-transform: uppercase;
+    padding: 3px 15px;
+}
+
+.nav-item button:hover {
+    border: 2px solid #f05a22;
+    background-color: #fff;
+}
+
+.nav-item a button {
+    font-size: 15px;
+}
+
+.nav-item a button:hover {
+    color: #f05a22;
+} 
+
