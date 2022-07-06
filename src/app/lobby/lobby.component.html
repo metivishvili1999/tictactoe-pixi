@@ -2,54 +2,32 @@
     <div class="card" style="width: 18rem">
       <img
         class="card-img-top"
-        src="../../assets/images/card.png"
+        src="../../assets/images/tictac.jpg"
         alt="Card image cap"
       />
       <div class="card-body">
         <h5 class="card-title">Tic Tac Toe</h5>
         <div class="options">
-          <form [formGroup]="gameForm" (ngSubmit)="onSubmit()"
-          
-          >
-            <select formControlName="size">
-              <option id="checker" [ngValue]="null" required><p>Select size</p></option>
+
+          <form [formGroup]="gameForm" (ngSubmit)="onSubmit()">
+            <select formControlName="size" (change)="selectSize($event)">
+              <option id="checker" [ngValue]="null" disabled required><p>Select size</p></option>
               <option
                 *ngFor="let size of boardSize"
-                [ngValue]="size.id"
+                [ngValue]="size.cellNumber"
               >
                 {{ size.name }}
               </option>
-              <div
-                *ngIf="
-                gameForm.get('checker')?.invalid &&
-                  (gameForm.get('checker')?.dirty || gameForm.get('checker')?.touched)
-                "
-                class="alert alert-danger"
-              >
-                <div *ngIf="gameForm.get('checker')?.errors?.['required']">
-                  Field is required.
-                </div>
-              </div>
+
             </select>
-            <select formControlName="score">
+            <select formControlName="score" (change)="selectScore($event)">
               <option [ngValue]="null" disabled required>Select score</option>
               <option *ngFor="let score of scoreToPlay" [ngValue]="score.id">
                 {{ score.name }}
               </option>
-              <div
-                *ngIf="
-                gameForm.get('checker')?.invalid &&
-                  (gameForm.get('checker')?.dirty || gameForm.get('checker')?.touched)
-                "
-                class="alert alert-danger"
-              >
-                <div *ngIf="gameForm.get('checker')?.errors?.['required']">
-                  Field is required.
-                </div>
-              </div>
             </select>
 
-            <button (click) = toggle() class="btn btn-primary" type="submit">Submit</button>
+            <button class="btn btn-primary" type="submit">Submit</button>
           </form>
           <a  href="#" *ngIf = "isSubmitted" class="btn btn-primary" routerLink="/board"
             >Create Match</a
@@ -60,7 +38,7 @@
     <div class="matchList">
         <div class="matchs">
             <div class="match-info">
-                <h3>Status: </h3>
+                <h3>Status:  </h3>
                 <h3>Board Size: </h3>
                 <h3>Score to play: </h3>
             </div>
@@ -82,3 +60,4 @@
         </div>
     </div>
   </div>
+

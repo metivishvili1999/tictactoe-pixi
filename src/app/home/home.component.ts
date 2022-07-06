@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { UserService } from '../_services/user.service';
 import { FormGroup, FormBuilder, FormControl, Validators } from '@angular/forms';
+import signalR from '@microsoft/signalr';
 
 
 @Component({
@@ -51,14 +52,24 @@ export class HomeComponent implements OnInit {
   constructor(private userService: UserService, private fb:FormBuilder) { }
 
   ngOnInit(): void {
-    this.userService.getPublicContent().subscribe({
-      next: data => {
-        this.content = data;
-      },
-      error: err => {
-        this.content = JSON.parse(err.error).message;
-      }
-    });
+
+    // let connection = new signalR.HubConnectionBuilder()
+    // .withUrl("/chathub", {
+    //     accessTokenFactory: () => {
+          
+    //     }
+    // })
+    // .build();
+
+
+    // this.userService.getPublicContent().subscribe({
+    //   next: data => {
+    //     this.content = data;
+    //   },
+    //   error: err => {
+    //     this.content = JSON.parse(err.error).message;
+    //   }
+    // });
 
 
     this.gameForm = this.fb.group ({
@@ -66,6 +77,8 @@ export class HomeComponent implements OnInit {
       score:[null]
     });
   }
+
+  
 
   onSubmit() {
     this.isSubmitted = true;
@@ -76,5 +89,7 @@ export class HomeComponent implements OnInit {
       console.log('Form is not')
     }
   }
+
+  
 
 }

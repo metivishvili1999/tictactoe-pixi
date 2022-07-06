@@ -33,21 +33,33 @@ export class AppComponent {
 //   complete: () => console.log('complete') // Called when connection is closed (for whatever reason).
 //  });
 
- const connection = new signalR.HubConnectionBuilder()  
- .configureLogging(signalR.LogLevel.Information)  
- .withUrl('http://172.25.36.202:8085/signalr')  
- .build();  
+//  const connection = new signalR.HubConnectionBuilder()  
+//  .configureLogging(signalR.LogLevel.Information)  
+//  .withUrl('http://172.25.36.202:8085/signalr')  
+//  .build();  
 
-connection.start().then(function () {  
- console.log('SignalR Connected!');
- connection.on("receivemessage", (sandro) => {  
-   console.log(sandro);
- }); 
- connection.invoke("notify", "sandro");
-}).catch(function (err) {  
- return console.error(err.toString());  
-});  
+// connection.start().then(function () {  
+//  console.log('SignalR Connected!');
+//  connection.on("receivemessage", (sandro) => {  
+//    console.log(sandro);
+//  }); 
+//  connection.invoke("notify", "sandro");
+// }).catch(function (err) {  
+//  return console.error(err.toString());  
+// });  
 
+
+
+
+// let connection = new signalR.HubConnectionBuilder()
+//     .withUrl("/chathub", {
+//         accessTokenFactory: () => {
+//             // Get and return the access token.
+//             // This function can return a JavaScript Promise if asynchronous
+//             // logic is required to retrieve the access token.
+//         }
+//     })
+//     .build();
 
   }
 

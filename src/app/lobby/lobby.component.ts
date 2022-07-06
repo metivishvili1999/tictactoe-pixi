@@ -1,6 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { UserService } from '../_services/user.service';
+import * as gameData from '../gameData';
+import { __values } from 'tslib';
+
+
 
 @Component({
   selector: 'app-lobby',
@@ -13,51 +17,43 @@ export class LobbyComponent implements OnInit {
   // contactForm!: FormGroup;
 
   boardSize = [
-    {id:1, name: "3x3"},
-    {id:2, name: "4x4"},
-    {id:3, name: "5x5"}
+    {id:1, name: "3x3", cellNumber: 9},
+    {id:2, name: "4x4", cellNumber: 16},
+    {id:3, name: "5x5", cellNumber: 25}
   ];
+
+
 
   isSubmitted!: boolean;
 
-  toggle() {
-    this.isSubmitted = !this.isSubmitted;
-  }
-
-  // boardSizes() {
-  //   this.boardSize;
+  // toggle() {
+  //   this.isSubmitted = !this.isSubmitted;
   // }
-
+  
   scoreToPlay = [
     {id:1, name: "1"},
     {id:2, name: "3"},
     {id:3, name: "5"}
   ];
 
-  isBoardChosen = false;
-  isBoardEmpty = false;
-  errorMessage = '';
+
   FormBuilder: any;
 
-  isScoreChosen = false;
-  isScoreEmpty = false;
-
   gameForm: FormGroup = new FormGroup ({
-    checker: new FormControl('', Validators.required),
   })
 
 
   constructor(private userService: UserService, private fb:FormBuilder) { }
 
   ngOnInit(): void {
-    this.userService.getPublicContent().subscribe({
-      next: data => {
-        this.content = data;
-      },
-      error: err => {
-        this.content = JSON.parse(err.error).message;
-      }
-    });
+    // this.userService.getPublicContent().subscribe({
+    //   next: data => {
+    //     this.content = data;
+    //   },
+    //   error: err => {
+    //     this.content = JSON.parse(err.error).message;
+    //   }
+    // });
 
 
     this.gameForm = this.fb.group ({
@@ -66,11 +62,24 @@ export class LobbyComponent implements OnInit {
     });
   }
 
+  selectSize(e:any): void {
+    gameData.data.setboardSize(0);
+    
+
+  }
+
+  selectScore(e:any): void {
+    gameData.data.setScore(0);
+  }
+
+
   onSubmit() {
     this.isSubmitted = true;
     this.gameForm.markAllAsTouched();
     if(this.gameForm.valid) {
       console.log(this.gameForm.value)
+      gameData.data.setboardSize(this.gameForm.value.size);
+      gameData.data.setScore(this.gameForm.value.score);
     } else {
       console.log('Form is not')
     }

@@ -11,9 +11,9 @@ export class UserService {
 
   constructor(private http: HttpClient) { }
 
-  getPublicContent(): Observable<any> {
-    return this.http.get(`http://172.25.36.202:8085/api/Api/Authorization`);
+  // getPublicContent(): Observable<any> {
+  //   return this.http.get(`http://172.25.36.202:8085/api/Api/Authorization`);
 
-  }
+  // }
 
 }

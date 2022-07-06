@@ -1,7 +1,8 @@
 
-import { Component,OnInit} from '@angular/core';
+import { Component,Input,OnInit} from '@angular/core';
 import { Container, Application, Sprite, TextStyle, Texture} from 'pixi.js';
 import * as pixi from 'pixi.js';
+import * as gameData from '../gameData';
 
 @Component({
   selector: 'app-board',
@@ -16,7 +17,6 @@ export class BoardComponent implements OnInit {
   public bannerL;
   public bannerD;
   
-  // public newSize = 3;
 
 
   public winningPositions = [
@@ -32,6 +32,8 @@ export class BoardComponent implements OnInit {
 
   ngOnInit(): void {
 
+
+    console.warn(gameData.data);
     let Application = pixi.Application,
       Container = pixi.Container,
       Graphics = pixi.Graphics,
@@ -40,10 +42,7 @@ export class BoardComponent implements OnInit {
       Texture = pixi.Texture;
 
     let playerOne,
-    playerTwo,
       turnX = true,
-      turnO = true,
-      // boardsize = this.newSize,
       moveCounter = 0,
       score = {
         player1: 0,
@@ -112,7 +111,7 @@ export class BoardComponent implements OnInit {
     chooseX.position.set(320, 250);
     chooseX.interactive = true;
     chooseX.on('click', () => {
-      addCells();
+      addCells(boardsize);
       chooseScene.visible = false;
       gameWrapper.visible = true;
     });
@@ -125,7 +124,7 @@ export class BoardComponent implements OnInit {
     chooseO.position.set(440, 250);
     chooseO.interactive = true;
     chooseO.on('click', () => {
-      addCells();
+      addCells(boardsize);
       chooseScene.visible = false;
       gameWrapper.visible = true;
     });
@@ -202,86 +201,31 @@ export class BoardComponent implements OnInit {
 
     gameField.position.set(400, 150);
 
-    // let addCells = (boardsize) => {
-    //   for (let i = 0; i < boardsize; i++) {
-    //     let cell = new Container();
-    //     gameField.addChild(cell);
-    //     let bg: Sprite = Sprite.from("assets/images/bg.png");
-    //     bg.position.set(0, 0);
-    //     bg.width = 100;
-    //     bg.height = 100;
+
+
     
-    //     cell.addChild(bg);
-    //     cell.x = (i % boardsize) * 100;
-    //     cell.y = Math.floor(i / boardsize) * 100;
+    let boardsize = gameData.data.data.boardSize ;
 
-    //     cell.interactive = true;
-    //     cell.on('click', () => {
-    //       addValue(cell);
-    //     });
-    //   }
-      
-    //   let octothorpe = new Graphics();
-    //   octothorpe.lineStyle(2, 0xffffff, 1);
-    //   octothorpe.moveTo(0, 0);
-    //   octothorpe.lineTo(0, 300);
-    //   octothorpe.moveTo(0, 0);
-    //   octothorpe.lineTo(300, 0);
-    //   octothorpe.moveTo(100, 0);
-    //   octothorpe.lineTo(100, 300);
-    //   octothorpe.moveTo(200, 0);
-    //   octothorpe.lineTo(200, 300);
-    //   octothorpe.moveTo(0, 100);
-    //   octothorpe.lineTo(300, 100);
-    //   octothorpe.moveTo(0, 200);
-    //   octothorpe.lineTo(300, 200);
-    //   octothorpe.moveTo(300, 0);
-    //   octothorpe.lineTo(300, 300);
-    //   octothorpe.moveTo(0, 300);
-    //   octothorpe.lineTo(301, 300);
-
-    //   gameField.addChild(octothorpe);
-    // }
-
-    let addCells = () => {
-      for (let i = 0; i < 9; i++) {
+    let addCells = (boardsize) => {
+      for (let i = 0; i < boardsize; i++) {
         let cell = new Container();
         gameField.addChild(cell);
-        let bg: Sprite = Sprite.from("assets/images/bg.png");
-        bg.position.set(0, 0);
+        var bg = new pixi.Sprite(pixi.Texture.WHITE);
+        bg.position.set(0, 0)
         bg.width = 100;
         bg.height = 100;
+        bg.alpha = 0.1;
+
     
         cell.addChild(bg);
-        cell.x = (i % 3) * 100;
-        cell.y = Math.floor(i / 3) * 100;
+        cell.x = (i % Math.sqrt(boardsize)) * 105;
+        cell.y = Math.floor(i / Math.sqrt(boardsize)) * 105;
 
         cell.interactive = true;
         cell.on('click', () => {
           addValue(cell);
         });
       }
-      
-      let octothorpe = new Graphics();
-      octothorpe.lineStyle(2, 0xffffff, 1);
-      octothorpe.moveTo(0, 0);
-      octothorpe.lineTo(0, 300);
-      octothorpe.moveTo(0, 0);
-      octothorpe.lineTo(300, 0);
-      octothorpe.moveTo(100, 0);
-      octothorpe.lineTo(100, 300);
-      octothorpe.moveTo(200, 0);
-      octothorpe.lineTo(200, 300);
-      octothorpe.moveTo(0, 100);
-      octothorpe.lineTo(300, 100);
-      octothorpe.moveTo(0, 200);
-      octothorpe.lineTo(300, 200);
-      octothorpe.moveTo(300, 0);
-      octothorpe.lineTo(300, 300);
-      octothorpe.moveTo(0, 300);
-      octothorpe.lineTo(301, 300);
-
-      gameField.addChild(octothorpe);
     }
 
     let removeCells = () => {
@@ -378,6 +322,7 @@ export class BoardComponent implements OnInit {
             if ( count == 3) {
               isWin = true
               this.bannerW = true;
+
               setTimeout(() => {
                 this.bannerW = false;
                 clearGameField();
@@ -445,6 +390,8 @@ export class BoardComponent implements OnInit {
       resetGame();
     };
 
+
+
     let resetGame = () => {
       playerOne = '';
       moveCounter = 0;
@@ -454,9 +401,6 @@ export class BoardComponent implements OnInit {
       xPositions = [];
       oPositions = [];
       removeCells();
-      this.bannerD = false;
-      this.bannerL = false;
-      this.bannerW = false;
     };
 
 
