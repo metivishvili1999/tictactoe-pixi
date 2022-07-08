@@ -16,19 +16,8 @@ export class BoardComponent implements OnInit {
   public bannerW;
   public bannerL;
   public bannerD;
-  
 
 
-  public winningPositions = [
-    [0,1,2],
-    [3,4,5],
-    [6,7,8],
-    [0,4,8],
-    [2,4,6],
-    [0,3,6],
-    [1,4,7],
-    [2,5,8]
-  ]
 
   ngOnInit(): void {
 
@@ -206,6 +195,10 @@ export class BoardComponent implements OnInit {
     
     let boardsize = gameData.data.data.boardSize ;
 
+    let numberToWin = Math.sqrt(boardsize);
+    
+
+
     let addCells = (boardsize) => {
       for (let i = 0; i < boardsize; i++) {
         let cell = new Container();
@@ -256,6 +249,9 @@ export class BoardComponent implements OnInit {
       gameEndScene.visible = false;
     })
 
+
+
+    
     let addValue = (cell) => {
       if (turnX && !cell.isFilled) {
         let x: Sprite = Sprite.from("assets/images/x.png");
@@ -290,7 +286,7 @@ export class BoardComponent implements OnInit {
         resetGame();
       } else if (check_Y_win(gameField.children)) {
         resetGame();
-      } else if(moveCounter > 8 ) {
+      } else if(moveCounter > boardsize ) {
         this.bannerD = true;
         resultText.text = 'It`s a tie';
         resultText.x = 270;
@@ -303,6 +299,21 @@ export class BoardComponent implements OnInit {
       }
 
 
+
+
+      let winningPos;
+      let numb = boardsize;
+      
+      if(numb === 9) {
+        winningPos = gameData.winningPositions.winningPositions.matrix3;
+      } else if (numb === 16) {
+        winningPos = gameData.winningPositions.winningPositions.matrix4;
+      } else if (numb === 25) {
+        winningPos = gameData.winningPositions.winningPositions.matrix5;
+      }
+
+
+
       let check_X_win = (arr: any): boolean => {
         let xContainers = arr.filter((item:any) => item.value == 'x');
         let isWin = false;
@@ -313,13 +324,13 @@ export class BoardComponent implements OnInit {
         }
   
         
-        for (let i = 0; i < this.winningPositions.length; i++) {
+        for (let i = 0; i < winningPos.length; i++) {
           let count = 0;
-          for (let j = 0; j < this.winningPositions[i].length; j++) {
-            if ( xPositions.includes(this.winningPositions[i][j]) ) {
+          for (let j = 0; j < winningPos[i].length; j++) {
+            if ( xPositions.includes(winningPos[i][j]) ) {
               count++;
             }
-            if ( count == 3) {
+            if ( count == numberToWin) {
               isWin = true
               this.bannerW = true;
 
@@ -345,13 +356,13 @@ export class BoardComponent implements OnInit {
         }
   
         
-        for (let i = 0; i < this.winningPositions.length; i++) {
+        for (let i = 0; i < winningPos.length; i++) {
           let count = 0;
-          for (let j = 0; j < this.winningPositions[i].length; j++) {
-            if ( oPositions.includes(this.winningPositions[i][j]) ) {
+          for (let j = 0; j < winningPos[i].length; j++) {
+            if ( oPositions.includes(winningPos[i][j]) ) {
               count++;
             }
-            if ( count == 3) {
+            if ( count == numberToWin) {
               isWin = true;
               this.bannerL = true;
               setTimeout(() => {
@@ -367,16 +378,15 @@ export class BoardComponent implements OnInit {
       }
 
     
-
     let changeTurnImage = () => {
-      if (moveCounter < 9) {
+      if (moveCounter < boardsize) {
         turnXImage.visible = !turnXImage.visible;
         turnOImage.visible = !turnOImage.visible;
       };
     }
 
     let incrementCounter = () => {
-      if (moveCounter < 9) {
+      if (moveCounter < boardsize) {
         ++moveCounter;
         moveCounterText.text = 'Move:   ' + moveCounter;
         return;

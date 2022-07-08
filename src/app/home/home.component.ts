@@ -12,13 +12,7 @@ import signalR from '@microsoft/signalr';
 export class HomeComponent implements OnInit {
   content?: string;
 
-  // contactForm!: FormGroup;
 
-  boardSize = [
-    {id:1, name: "3x3"},
-    {id:2, name: "4x4"},
-    {id:3, name: "5x5"}
-  ];
 
   isSubmitted!: boolean;
 
@@ -26,18 +20,7 @@ export class HomeComponent implements OnInit {
     this.isSubmitted = !this.isSubmitted;
   }
 
-  // boardSizes() {
-  //   this.boardSize;
-  // }
 
-  scoreToPlay = [
-    {id:1, name: "1"},
-    {id:2, name: "3"},
-    {id:3, name: "5"}
-  ];
-
-  isBoardChosen = false;
-  isBoardEmpty = false;
   errorMessage = '';
   FormBuilder: any;
 

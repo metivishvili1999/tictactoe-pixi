@@ -3,6 +3,7 @@ import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms'
 import { UserService } from '../_services/user.service';
 import * as gameData from '../gameData';
 import { __values } from 'tslib';
+import signalR from '@microsoft/signalr';
 
 
 
@@ -60,6 +61,9 @@ export class LobbyComponent implements OnInit {
       size:[null],
       score:[null]
     });
+
+
+
   }
 
   selectSize(e:any): void {
@@ -71,6 +75,8 @@ export class LobbyComponent implements OnInit {
   selectScore(e:any): void {
     gameData.data.setScore(0);
   }
+
+  
 
 
   onSubmit() {
