@@ -13,6 +13,8 @@ import { BoardComponent } from './board/board.component';
 import { ReactiveFormsModule } from '@angular/forms';
 import { LobbyComponent } from './lobby/lobby.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { MatchListComponent } from './match/match-list/match-list.component';
+import { MatchDetailComponent } from './match/match-detail/match-detail.component';
 
 
 
@@ -24,7 +26,9 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
     HomeComponent,
     ProfileComponent,
     BoardComponent,
-    LobbyComponent
+    LobbyComponent,
+    MatchListComponent,
+    MatchDetailComponent
   ],
   imports: [
     BrowserModule,

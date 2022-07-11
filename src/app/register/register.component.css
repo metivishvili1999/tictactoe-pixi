@@ -4,7 +4,7 @@
     box-sizing: border-box;
 }
 
-
+/* 
 body {
     display: flex;
     justify-content: center;
@@ -13,10 +13,11 @@ body {
     font-family: 'Roboto', sans-serif;
     height: 100vh;
     margin: -20px 0 50px;
-}
+} */
 
 
 h1 {
+    color: #fff;
     font-size: 32px;
     font-weight: bold;
     margin: 0;
@@ -77,8 +78,13 @@ button.ghost {
     border-color: #FFFFFF;
 }
 
+label {
+    color: #fff;
+}
+
 form {
-    background-color: #FFFFFF;
+    background-color: rgba(255, 255, 255, 0.058);
+    box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -86,27 +92,30 @@ form {
     padding: 0 20px;
     height: 100%;
     text-align: center;
+    border-top-left-radius: 30px;
+    border-bottom-left-radius: 30px;
 }
 
 input {
-    background-color: #eee;
+    background-color: rgba(255, 255, 255, 0.274);
     border: none;
     padding: 12px 15px;
     margin:0;
     width: 100%;
 }
 
-.container {
-    background-color: #fff;
+.wrapper {
+    min-height: 90vh;
+    display: flex;
+    align-items: center;
+    background-size: cover;
     border-radius: 10px;
-    box-shadow: 0 14px 28px rgba(0,0,0,0.25),
-    0 10px 10px rgba(0,0,0,0.22);
-    position: relative;
-    overflow: hidden;
-    /* width: 700px; */
-    max-width: 860px;
-    min-height: 50vh;
-    margin-top: 5vh;
+ }
+
+.container {
+    width: 800px;
+    margin: auto;
+    display: flex;
 }
 
 .form-container {
@@ -114,6 +123,7 @@ input {
     /* right: 0; */
     top: 0;
     height: 100%;
+
     transition: all 0.6s ease-in-out;
 }
 
@@ -124,14 +134,19 @@ input {
 }
 
 .right-panel {
-	left: 50%;
+    width: 50%;
+    max-height: 500px; 
+	/* left: 50%;
     height: 100%;
-	z-index: 1;
+	z-index: 1; */
 }
 
 
 .right-panel-img {
     width: 100%;
+    max-height: 500px;
+    border-bottom-right-radius: 30px;
+    border-top-right-radius: 30px;
     /* min-height: 80vh; */
     object-fit: cover;
     /* filter: blur(2px);
@@ -147,4 +162,34 @@ input {
     padding: 0.75rem 1.25rem;
     border: 1px solid transparent;
     border-radius: 8px;
+}
+
+
+
+
+
+
+
+@media (max-width: 767px){ 
+    .container {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .sign-up-container {
+        width: 100%;
+    }
+
+    form {
+        border-radius: 30px;
+        padding: 50px;
+    }
+
+    .right-panel {
+        display: none;
+    }
+
+    .right-panel-img {
+        border-radius: 0 0 30px 30px;
+    }
 }

@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { AuthService } from '../_services/auth.service';
-import { TokenStorageService } from '../_services/token-storage.service';
+import * as gameData from '../gameData';
+import { Route, Router } from '@angular/router';
 
 
 @Component({
@@ -12,7 +13,8 @@ export class LoginComponent implements OnInit {
 
   form: any = {
     userName: null,
-    password: null
+    password: null,
+    sessionId: null
   };
 
   isLoggedIn = false;
@@ -20,25 +22,20 @@ export class LoginComponent implements OnInit {
   errorMessage = '';
   roles: string[] = [];
 
-  constructor(private authService: AuthService, private tokenStorage: TokenStorageService) { }
+  constructor(private route: Router, private authService: AuthService) { }
 
   ngOnInit(): void {
-    if (this.tokenStorage.getToken()) {
-      this.isLoggedIn = true;
-      this.roles = this.tokenStorage.getUser().roles;
-    }
   }
 
   onSubmit(): void {
-    const { userName, password } = this.form;
-    this.authService.login(userName, password).subscribe ({
+    const { userName, password, sessionId } = this.form;
+    this.authService.login(userName, password, sessionId).subscribe ({
       next: data => {
-        this.tokenStorage.saveToken(data.accesToken);
-        this.tokenStorage.saveUser(data);
+        console.log(data)
         this.isLoginFailed = false;
         this.isLoggedIn = true;
-        this.roles = this.tokenStorage.getUser().roles;
-        this.reloadPage();
+        gameData.data.data.user.sessionId = data.sessionId;
+        this.route.navigateByUrl('/home');
       },
       error: err => {
         console.log(err)
@@ -48,7 +45,4 @@ export class LoginComponent implements OnInit {
     });
   }
 
-  reloadPage(): void {
-    window.location.reload();
-  }
 }

@@ -15,15 +15,18 @@ body {
 
 
 h1 {
+    color: #fff;
     font-weight: bold;
     margin: 0;
 }
 
 h2 {
+    color: #fff;
     text-align: center;
 }
 
 p {
+    color: #fff;
     font-style: 14px;
     font-weight: 100;
     line-height: 20px;
@@ -45,7 +48,7 @@ a {
 .btn {
     border-radius: 20px;
     background-color: #f05a22;
-    border: 1px solid;
+    border: none;
     color: #FFFFFF;
     font-style: 12px;
     font-weight: bold;
@@ -74,8 +77,13 @@ a {
     border-color: #FFFFFF;
 }
 
+label {
+    color: #fff;
+}
+
 form {
-    background-color: #FFFFFF;
+    background-color: rgba(255, 255, 255, 0.058);
+    box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -83,26 +91,31 @@ form {
     padding: 0 40px;
     height: 100%;
     text-align: center;
+    border-top-left-radius: 30px;
+    border-bottom-left-radius: 30px;
 }
 
 input {
-    background-color: #eee;
+    background-color: rgba(255, 255, 255, 0.274);
     border: none;
     padding: 12px 15px;
     margin:0;
     width: 100%;
 }
 
-.container {
-    background-color: #fff;
+
+.wrapper {
+    min-height: 90vh;
+    display: flex;
+    align-items: center;
+    background-size: cover;
     border-radius: 10px;
-    box-shadow: 0 14px 28px rgba(0,0,0,0.25),
-    0 10px 10px rgba(0,0,0,0.22);
-    position: relative;
-    overflow: hidden;
-    max-width: 860px;
-    min-height: 50vh;
-    margin-top: 5vh;
+ }
+
+.container {
+    width: 800px;
+    margin: auto;
+    display: flex;
 }
 
 .form-container {
@@ -119,29 +132,31 @@ input {
 }
 
 .right-panel {
-	left: 50%;
-    height: 100%;
-	z-index: 1;
+    width: 50%;
+    max-height: 500px; 
 }
 
 
 .right-panel-img {
-    width: 100%;
+    width: 97%;
+    border-bottom-right-radius: 30px;
+    border-top-right-radius: 30px;
     object-fit: cover;
+    
 }
 
 .alert {
-    width: 200px;
     position: relative;
     padding: 0.75rem 1.25rem;
-    margin:40% 0 0 25%;
-    border: 1px solid transparent;
-    border-radius: 8px;
+    margin-top: 10px;
+    display: flex;
+    text-align: center;
+    align-items: center;
 }
 
 
 .btn1{
-    margin-top: 15px;
+    margin-left: 30%;
     border-radius: 20px;
     background-color: #0d498a;
     color: #FFFFFF;
@@ -154,4 +169,29 @@ input {
 
 .btn1:hover {
     background-color: #0f62bb;
+}
+
+
+@media (max-width: 767px){ 
+    .container {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .sign-in-container {
+        width: 100%;
+    }
+
+    form {
+        border-radius: 30px;
+        padding: 50px;
+    }
+
+    .right-panel {
+        display: none;
+    }
+
+    .right-panel-img {
+        border-radius: 0 0 30px 30px;
+    }
 }

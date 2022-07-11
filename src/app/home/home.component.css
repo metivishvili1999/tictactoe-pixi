@@ -27,6 +27,11 @@ button {
     border-radius: 6px;
 }
 
+.container {
+    width: auto;
+    max-width: fit-content;
+}
+
 .card {
     border-radius: 20px;
 }
@@ -48,7 +53,7 @@ button {
 
 
 .lobby {
-    margin: auto;
+    margin-top: 30%;
     background-color: rgba(255, 255, 255, 0.058);
     box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
     border-radius: 15px;
@@ -73,7 +78,7 @@ button {
 }
 
 .aut button {
-    background-color: #347474;
+    background-color: #000034;
     color: #fff;
     margin-left: 35%;
     width: 80px;
@@ -82,5 +87,51 @@ button {
 }
 
 .aut button:hover {
-background-color: #2c6161;
+    color: #df7005;
+    background-color: #000034e6; 
+}
+
+
+@media (max-width: 767px) {
+    .lobby {
+        width: auto;
+        max-width: 600px;
+    }
+
+    .lobby img {
+        width: 15rem;
+    }
+
+    .lobby h1 {
+        font-size: 18px;
+        padding: 10px;
+        margin-top: 50px;
+        text-align: center;
+        align-items: center;
+    }
+}
+
+@media (max-width: 576px) {
+    .lobby {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .lobby img {
+        width: 17rem;
+        border-radius:15px 15px 0 0;
+    }
+
+    .lobby h1 {
+        margin-top: 20px;
+    }
+
+    .aut {
+        margin: 20px 10px 20px 10px;
+    }
+
+    .aut button {
+        margin-left: 33%;
+    }
+
 }

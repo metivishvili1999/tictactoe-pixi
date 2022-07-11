@@ -118,6 +118,33 @@ export class BoardComponent implements OnInit {
       gameWrapper.visible = true;
     });
 
+
+
+  //   var square = new pixi.Graphics();
+  //   square.beginFill(0xff0000);
+  //   square.drawRect(0, 0, 50, 50);
+  //   square.endFill();
+  //   square.x = 100;
+  //   square.y = 100;
+  //   chooseScene.addChild(square);
+
+  //   requestAnimationFrame(update);
+
+  //   function update() {
+  //     square.position.x += 1;
+  
+  //     app.render(chooseScene);
+      
+  //     requestAnimationFrame(update);
+  // }
+
+
+
+
+
+
+
+
     let gameWrapper = new Container();
     app.stage.addChild(gameWrapper);
 
@@ -194,10 +221,7 @@ export class BoardComponent implements OnInit {
 
     
     let boardsize = gameData.data.data.boardSize ;
-
     let numberToWin = Math.sqrt(boardsize);
-    
-
 
     let addCells = (boardsize) => {
       for (let i = 0; i < boardsize; i++) {
@@ -305,11 +329,11 @@ export class BoardComponent implements OnInit {
       let numb = boardsize;
       
       if(numb === 9) {
-        winningPos = gameData.winningPositions.winningPositions.matrix3;
+        winningPos = gameData.data.data.winningPositions.matrix3;
       } else if (numb === 16) {
-        winningPos = gameData.winningPositions.winningPositions.matrix4;
+        winningPos = gameData.data.data.winningPositions.matrix4;
       } else if (numb === 25) {
-        winningPos = gameData.winningPositions.winningPositions.matrix5;
+        winningPos = gameData.data.data.winningPositions.matrix5;
       }
 
 

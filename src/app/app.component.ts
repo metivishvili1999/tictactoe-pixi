@@ -1,8 +1,7 @@
 
 import { Component } from '@angular/core';
 import { TokenStorageService } from './_services/token-storage.service';
-import { webSocket } from 'rxjs/webSocket';
-import * as signalR from '@microsoft/signalr';  
+import * as gameData from './gameData'; 
 
 @Component({
   selector: 'app-root',
@@ -10,19 +9,10 @@ import * as signalR from '@microsoft/signalr';
   styleUrls: ['./app.component.css']
 })
 export class AppComponent {
-  private roles: string[] = [];
-  isLoggedIn = false;
   userName?: string;
-
   constructor(private tokenStorageService: TokenStorageService) {}
 
   ngOnInit(): void {
-    this.isLoggedIn = !!this.tokenStorageService.getToken();
-    if(this.isLoggedIn) {
-      const user = this.tokenStorageService.getUser();
-      this.roles = user.roles;
-      this.userName = user.userName;
-    }
 
 
 // const subject = webSocket('ws://192.168.146.93:44356');
@@ -38,20 +28,20 @@ export class AppComponent {
 // .withUrl('http://172.25.36.202:8085/signalr')  
 // .build();  
 
- const connection = new signalR.HubConnectionBuilder()  
- .configureLogging(signalR.LogLevel.Information)  
- .withUrl('http://172.25.36.202:8085/signalr')  
- .build();  
+//  const connection = new signalR.HubConnectionBuilder()  
+//  .configureLogging(signalR.LogLevel.Information)  
+//  .withUrl('http://172.25.36.202:8085/signalr')  
+//  .build();  
 
-connection.start().then(function () {  
- console.log('SignalR Connected!');
- connection.on("receivematches", (sandro,rere) => {  
-   console.log(sandro);
- }); 
- connection.invoke("creatematch", 3,2);
-}).catch(function (err) {  
- return console.error(err.toString());  
-});  
+// connection.start().then(function () {  
+//  console.log('SignalR Connected!');
+//  connection.on("receivemessage", (sandro) => {  
+//    console.log(sandro);
+//  }); 
+//  connection.invoke("creatematch");
+// }).catch(function (err) {  
+//  return console.error(err.toString());  
+// });  
 
 
 
@@ -70,6 +60,11 @@ connection.start().then(function () {
 //     .build();
 
 //   }
+
+
+  public get isLoggedIn() {
+    return gameData.data.data.user.sessionId != null;
+  }
 
   
 

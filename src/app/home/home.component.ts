@@ -1,7 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { UserService } from '../_services/user.service';
 import { FormGroup, FormBuilder, FormControl, Validators } from '@angular/forms';
-import signalR from '@microsoft/signalr';
+import * as signalR from '@microsoft/signalr';
+import { TokenStorageService } from '../_services/token-storage.service';
+import * as gameData from '../gameData';
 
 
 @Component({
@@ -11,30 +13,72 @@ import signalR from '@microsoft/signalr';
 })
 export class HomeComponent implements OnInit {
   content?: string;
-
-
+  isLoggedIn = false;
 
   isSubmitted!: boolean;
+  sesId: any;
 
   toggle() {
     this.isSubmitted = !this.isSubmitted;
   }
 
 
+  login() {
+     const connection = new signalR.HubConnectionBuilder()  
+    .configureLogging(signalR.LogLevel.Information)  
+    .withUrl('http://172.25.36.202:8085/signalr', { accessTokenFactory: () => gameData.data.data.user.sessionId })  
+    .build();  
+
+    connection.start().then(function () {  
+    console.log('SignalR Connected!');
+    // connection.on("receivemessage", (sandro) => {  
+    //   console.log(sandro);
+    // }); 
+    // connection.invoke("creatematch");
+    }).catch(function (err) {  
+    return console.error(err.toString());  
+    });  
+  }
+
   errorMessage = '';
   FormBuilder: any;
 
-  isScoreChosen = false;
-  isScoreEmpty = false;
+  // isScoreChosen = false;
+  // isScoreEmpty = false;
 
   gameForm: FormGroup = new FormGroup ({
     checker: new FormControl('', Validators.required),
   })
 
 
-  constructor(private userService: UserService, private fb:FormBuilder) { }
+  constructor(private userService: UserService, 
+    private fb:FormBuilder, private tokenStorageService: TokenStorageService) { }
 
   ngOnInit(): void {
+    this.isLoggedIn = !!this.tokenStorageService.getToken();
+    if(this.isLoggedIn) {
+      const user = this.tokenStorageService.getUser();
+      this.sesId = user.sessionId;
+    }
+
+    if(this.sesId != null) {
+      const connection = new signalR.HubConnectionBuilder()  
+      .configureLogging(signalR.LogLevel.Information)  
+      .withUrl('http://172.25.36.202:8085/signalr', gameData.data.data.user.sessionId)
+      .build();  
+  
+  
+        connection.start().then(function () {  
+        console.log('SignalR Connected!');
+        connection.on("receivemessage", (sandro) => {  
+          console.log(sandro);
+        }); 
+        connection.invoke("creatematch");
+        }).catch(function (err) {  
+        return console.error(err.toString());  
+        }); 
+    }
+
 
     // let connection = new signalR.HubConnectionBuilder()
     // .withUrl("/chathub", {
