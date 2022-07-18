@@ -1,8 +1,10 @@
 
-import { Component,Input,OnInit} from '@angular/core';
+import { Component,ElementRef,Input,OnInit, ViewChild} from '@angular/core';
 import { Container, Application, Sprite, TextStyle, Texture} from 'pixi.js';
 import * as pixi from 'pixi.js';
 import * as gameData from '../gameData';
+import { LobbyComponent } from '../lobby/lobby.component';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-board',
@@ -16,8 +18,10 @@ export class BoardComponent implements OnInit {
   public bannerW;
   public bannerL;
   public bannerD;
+  public gameWinner;
 
 
+  constructor(private route: Router) { }
 
   ngOnInit(): void {
 
@@ -38,15 +42,17 @@ export class BoardComponent implements OnInit {
         player2: 0
       };
 
+      let widthX = 600
+      let heightY = 600
 
-      
 
     let app = new Application({
-      width: innerWidth ,
-      height: innerHeight,
+      width: widthX,
+      height: heightY,
       backgroundAlpha: 0
     });
 
+    document.body.appendChild(app.view);
 
     let loadingScreen = new Container();
     app.stage.addChild(loadingScreen);
@@ -57,16 +63,8 @@ export class BoardComponent implements OnInit {
 
     setTimeout(() => {
       loadingScreen.visible = false;
-      chooseScene.visible = true;
   }, 500);
   
-
-    document.body.appendChild(app.view);
-
-    let chooseScene = new Container();
-    app.stage.addChild(chooseScene);
-
-    chooseScene.visible = false;
 
     let style = new TextStyle({
       fontStyle:"italic",
@@ -86,142 +84,91 @@ export class BoardComponent implements OnInit {
       fill: 'white'
     });
 
-    let chooseText = new Text('Choose Player', style);
-    chooseScene.addChild(chooseText);
-
-    chooseText.position.set(280, 170);
-
-    
-
-    const chooseX: Sprite = Sprite.from("assets/images/x.png");
-    chooseScene.addChild(chooseX);
-
-    chooseX.scale.set(0.7);
-    chooseX.position.set(320, 250);
-    chooseX.interactive = true;
-    chooseX.on('click', () => {
-      addCells(boardsize);
-      chooseScene.visible = false;
-      gameWrapper.visible = true;
-    });
-
-
-    let chooseO: Sprite = Sprite.from("assets/images/o.png");
-    chooseScene.addChild(chooseO);
-
-    chooseO.scale.set(0.7);
-    chooseO.position.set(440, 250);
-    chooseO.interactive = true;
-    chooseO.on('click', () => {
-      addCells(boardsize);
-      chooseScene.visible = false;
-      gameWrapper.visible = true;
+    let lobbyButtonStyle = new TextStyle({
+      fontSize: 32,
+      fill: 'white'
     });
 
 
 
-  //   var square = new pixi.Graphics();
-  //   square.beginFill(0xff0000);
-  //   square.drawRect(0, 0, 50, 50);
-  //   square.endFill();
-  //   square.x = 100;
-  //   square.y = 100;
-  //   chooseScene.addChild(square);
-
-  //   requestAnimationFrame(update);
-
-  //   function update() {
-  //     square.position.x += 1;
-  
-  //     app.render(chooseScene);
-      
-  //     requestAnimationFrame(update);
-  // }
-
-
-
-
-
-
-
+    /////////////////////////////////////////////////
 
     let gameWrapper = new Container();
     app.stage.addChild(gameWrapper);
 
     gameWrapper.visible = false;
 
-    let scoreText = new Text('Score', style);
+    let scoreText = new Text('Target score:', style1);
     gameWrapper.addChild(scoreText);
-    scoreText.position.set(500, 20);
+    scoreText.position.set(300,70);
+
 
     let scoreLine = new Graphics();
     gameWrapper.addChild(scoreLine);
     scoreLine.lineStyle(3, 0xffffff, 1);
-    scoreLine.moveTo(400, 60);
-    scoreLine.lineTo(700, 60);
+    scoreLine.moveTo(100, 60);
+    scoreLine.lineTo(515, 60);
+    scoreLine.alpha = 0.3;
 
-
-    ///////////   PLAYER-X  ////////////
     let firstP = new Text('Player X: ', style1);
     gameWrapper.addChild(firstP);
-    firstP.position.set(400, 70);
+    firstP.position.set(100, 70);
 
     let playerOneScoreText = new Text(score.player1, style1);
     gameWrapper.addChild(playerOneScoreText);
-    playerOneScoreText.position.set(510, 69);
-
-
-    ////////// PLAYER O //////////////
+    playerOneScoreText.position.set(210, 69);
 
     let secondP = new Text('Player Y: ', style1);
     gameWrapper.addChild(secondP);
-    secondP.position.set(400, 110);
+    secondP.position.set(100, 110);
 
     let playerTwoScoreText = new Text(score.player2, style1);
     gameWrapper.addChild(playerTwoScoreText);
-    playerTwoScoreText.position.set(510, 109);
+    playerTwoScoreText.position.set(210, 109);
 
-
-
-
-    let moveCounterText = new Text('', style);
-    gameWrapper.addChild(moveCounterText);
-
-    moveCounterText.position.set(100, 300);
-    moveCounterText.text = 'Move:   ' + moveCounter;
-
-    let currentTurnText = new Text('Turn:', style);
+    let currentTurnText = new Text('Turn:', style1);
     gameWrapper.addChild(currentTurnText);
 
-    currentTurnText.position.set(100, 370);
+    currentTurnText.position.set(300, 110);
 
     let turnXImage: Sprite = Sprite.from("assets/images/x.png");
     currentTurnText.addChild(turnXImage);
 
-    turnXImage.scale.set(.5);
-    turnXImage.position.set(150, 10);
+    turnXImage.scale.set(.3);
+    turnXImage.position.set(70, 3);
 
     let turnOImage: Sprite = Sprite.from("assets/images/o.png");
     currentTurnText.addChild(turnOImage);
-
-    turnOImage.scale.set(.5);
-    turnOImage.position.set(150, 10);
+    turnOImage.scale.set(.3);
+    turnOImage.position.set(70, 3);
     turnOImage.visible = false;
 
     
+
 
     let gameField: any = new Container();    
     let xPositions = [];
     let oPositions = [];
     gameWrapper.addChild(gameField);
-
-    gameField.position.set(400, 150);
-
+    gameField.position.set(93, 150);
 
 
+
+    let scoretoplay = gameData.data.data.scoreToPlay;
     
+
+    let targetScore = (scoretoplay) => {
+        var tScore = new Text(scoretoplay, style1);
+        tScore.position.set(450, 70)
+        gameWrapper.addChild(tScore);
+
+    }
+
+
     let boardsize = gameData.data.data.boardSize ;
     let numberToWin = Math.sqrt(boardsize);
+
+    let squareSize = 400 / Math.sqrt(boardsize);
 
     let addCells = (boardsize) => {
       for (let i = 0; i < boardsize; i++) {
@@ -229,14 +176,12 @@ export class BoardComponent implements OnInit {
         gameField.addChild(cell);
         var bg = new pixi.Sprite(pixi.Texture.WHITE);
         bg.position.set(0, 0)
-        bg.width = 100;
-        bg.height = 100;
         bg.alpha = 0.1;
-
-    
+        bg.width = squareSize;
+        bg.height = squareSize; 
         cell.addChild(bg);
-        cell.x = (i % Math.sqrt(boardsize)) * 105;
-        cell.y = Math.floor(i / Math.sqrt(boardsize)) * 105;
+        cell.x = (i % Math.sqrt(boardsize)) * (squareSize + 5);
+        cell.y = Math.floor(i / Math.sqrt(boardsize)) * (squareSize + 5);
 
         cell.interactive = true;
         cell.on('click', () => {
@@ -251,10 +196,15 @@ export class BoardComponent implements OnInit {
       }
     }
 
+
+    ////////////////////////////////////////////
     let gameEndScene = new Container();
     app.stage.addChild(gameEndScene);
-
     gameEndScene.visible = false;
+
+    addCells(boardsize);
+    targetScore(scoretoplay);
+    gameWrapper.visible = true;
 
 
     let resultText = new Text('', style);
@@ -269,18 +219,51 @@ export class BoardComponent implements OnInit {
     continueButton.position.set(250, 220)
     continueButton.interactive = true;
     continueButton.on('click', () => {
-      chooseScene.visible = true;
       gameEndScene.visible = false;
+      addCells(boardsize);
+      this.bannerD = false;
+      this.bannerL = false;
+      this.bannerW = false;
+    gameWrapper.visible = true;
     })
 
 
 
-    
+    ////////////////////////////////////////////////////
+    let newScene = new Container();
+    app.stage.addChild(newScene);
+    newScene.visible = false;
+
+    let WinnerText = new Text('Series Winner is:', style);
+    newScene.addChild(WinnerText);
+    WinnerText.position.set(150, 150);
+
+    let Winner = new Text('', style);
+    newScene.addChild(Winner);
+    Winner.position.set(430, 150);
+
+    let lobbyButton = new Text('Lobby', lobbyButtonStyle);
+    newScene.addChild(lobbyButton);
+
+    lobbyButton.position.set(250, 200);
+    lobbyButton.interactive = true;
+    lobbyButton.on('click', () => {
+      document.body.removeChild(app.view);
+      this.route.navigateByUrl('/lobby');
+      this.bannerW = false;
+      this.bannerD = false;
+      this.bannerL = false;
+
+    } )
+
+
     let addValue = (cell) => {
       if (turnX && !cell.isFilled) {
         let x: Sprite = Sprite.from("assets/images/x.png");
-        x.position.x = 10;
-        x.position.y = 10;
+        x.width = squareSize;
+        x.height = squareSize;
+        x.position.x = squareSize / 10;
+        x.position.y = squareSize / 10;
         cell.addChild(x);
         turnX = !turnX;
         cell.isFilled = true;
@@ -290,8 +273,10 @@ export class BoardComponent implements OnInit {
 
       if (!turnX && !cell.isFilled) {
         let o: Sprite = Sprite.from("assets/images/o.png");
-        o.position.x = 10;
-        o.position.y = 10;
+        o.width = squareSize;
+        o.height = squareSize;
+        o.position.x = squareSize / 10;
+        o.position.y = squareSize / 10;
         cell.addChild(o);
         turnX = !turnX;
         cell.isFilled = true;
@@ -301,24 +286,35 @@ export class BoardComponent implements OnInit {
       checkWin();
     }
 
+
+    let seriesWinner = () => {
+      if(score.player1 === scoretoplay) {
+        gameWrapper.visible = false;
+        newScene.visible = true;
+        gameEndScene.visible = false;
+        gameField.visible = false;
+        Winner.text = 'X';
+        this.bannerW = true;
+      } 
+      else if(score.player2 === scoretoplay) {
+        gameWrapper.visible = false;
+        newScene.visible = true;
+        gameEndScene.visible = false;
+        gameField.visible = false;
+        Winner.text = 'O';
+        this.bannerL = true;
+      } 
+    }
+
     let checkWin = () => {
-      
       changeTurnImage();
       incrementCounter();
-      
       if (check_X_win(gameField.children)) {
         resetGame();
       } else if (check_Y_win(gameField.children)) {
         resetGame();
-      } else if(moveCounter > boardsize ) {
-        this.bannerD = true;
-        resultText.text = 'It`s a tie';
-        resultText.x = 270;
-        setTimeout(() => {
-          this.bannerD = false;
-          clearGameField();
-        }, 1500);
-        resetGame();
+      } else {
+        draw();
       }
       }
 
@@ -356,11 +352,14 @@ export class BoardComponent implements OnInit {
             }
             if ( count == numberToWin) {
               isWin = true
+              this.gameWinner = true;
               this.bannerW = true;
-
+                // clearGameField();
+                // seriesWinner();
               setTimeout(() => {
                 this.bannerW = false;
                 clearGameField();
+                seriesWinner();
               }, 1500);
               showPlayerOneWin();
             }
@@ -389,9 +388,14 @@ export class BoardComponent implements OnInit {
             if ( count == numberToWin) {
               isWin = true;
               this.bannerL = true;
+              this.gameWinner = true;
+              // clearGameField();
+              // seriesWinner();
+
               setTimeout(() => {
                 this.bannerL = false;
                 clearGameField();
+                seriesWinner();
               }, 1500);
               showPlayerTwoWin();
             }
@@ -401,7 +405,19 @@ export class BoardComponent implements OnInit {
         return isWin;
       }
 
-    
+      let draw = () => {
+        if( moveCounter >= boardsize && !this.gameWinner) {
+          this.bannerD = true;
+          resultText.text = 'It`s a tie';
+          resultText.x = 270;
+          setTimeout(() => {
+            this.bannerD = false;
+            clearGameField();
+          }, 1500);
+          resetGame();
+        }
+      }
+
     let changeTurnImage = () => {
       if (moveCounter < boardsize) {
         turnXImage.visible = !turnXImage.visible;
@@ -412,24 +428,19 @@ export class BoardComponent implements OnInit {
     let incrementCounter = () => {
       if (moveCounter < boardsize) {
         ++moveCounter;
-        moveCounterText.text = 'Move:   ' + moveCounter;
         return;
       };
       ++moveCounter;
     }
-
 
     let clearGameField = () => {
       gameField.removeChildren();
       resetGame();
     };
 
-
-
     let resetGame = () => {
       playerOne = '';
       moveCounter = 0;
-      moveCounterText.text = 'Move:   ' + moveCounter;
       gameWrapper.visible = false;
       gameEndScene.visible = true;
       xPositions = [];
@@ -437,14 +448,12 @@ export class BoardComponent implements OnInit {
       removeCells();
     };
 
-
     let showPlayerOneWin = () => {
       playerOneScoreText.text = ++score.player1;
       resultText.text = 'Player X win!'
       resultText.x = 230;
 
     };
-
 
     let showPlayerTwoWin = () => {
       playerTwoScoreText.text = ++score.player2;

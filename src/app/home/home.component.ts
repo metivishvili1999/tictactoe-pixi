@@ -23,28 +23,47 @@ export class HomeComponent implements OnInit {
   }
 
 
-  login() {
-     const connection = new signalR.HubConnectionBuilder()  
-    .configureLogging(signalR.LogLevel.Information)  
-    .withUrl('http://172.25.36.202:8085/signalr', { accessTokenFactory: () => gameData.data.data.user.sessionId })  
-    .build();  
+  // login() {
+  //    const connection = new signalR.HubConnectionBuilder()
+  //    .configureLogging(signalR.LogLevel.Debug)
+  //    .withUrl("http://172.25.36.202:8085/signalr", {
+  //     //  skipNegotiation: true,
+  //     //  transport: signalR.HttpTransportType.WebSockets
+  //    }).build();
 
-    connection.start().then(function () {  
-    console.log('SignalR Connected!');
-    // connection.on("receivemessage", (sandro) => {  
-    //   console.log(sandro);
-    // }); 
-    // connection.invoke("creatematch");
-    }).catch(function (err) {  
-    return console.error(err.toString());  
-    });  
-  }
+  //   connection.start().then(function () {  
+  //   console.log('SignalR Connected!');
+  //   // connection.on("receivemessage", (sandro) => {  
+  //   //   console.log(sandro);
+  //   // }); 
+  //   // connection.invoke("creatematch");
+  //   }).catch(function (err) {  
+  //   return console.error(err.toString());  
+  //   });  
+  // }
+
+
+  login() {
+    const connection = new signalR.HubConnectionBuilder()  
+   .configureLogging(signalR.LogLevel.Information)  
+   .withUrl('http://172.25.36.202:8085/signalr', { accessTokenFactory: () => gameData.data.data.user.sessionId })  
+   .build();  
+
+   connection.start().then(function () {  
+   console.log('SignalR Connected!');
+   // connection.on("receivemessage", (sandro) => {  
+   //   console.log(sandro);
+   // }); 
+   // connection.invoke("creatematch");
+   }).catch(function (err) {  
+   return console.error(err.toString());  
+   });  
+ }
+
+
 
   errorMessage = '';
   FormBuilder: any;
-
-  // isScoreChosen = false;
-  // isScoreEmpty = false;
 
   gameForm: FormGroup = new FormGroup ({
     checker: new FormControl('', Validators.required),

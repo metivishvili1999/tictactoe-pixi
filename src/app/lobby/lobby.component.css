@@ -15,6 +15,11 @@ button {
     background-color: #000034; 
 }
 
+.option {
+    color: #333;
+    font-weight: 500;
+}
+
 .card {
     width: 18rem;
     flex-direction: row;
@@ -214,4 +219,14 @@ button {
     .match-info {
         padding-right: 10px;
     }
+
+    .match-info h3 {
+        padding-right: 15px;
+    }
+
+    .join button {
+        font-size: 12px;
+        padding: 5px 10px;
+    }
+
 }

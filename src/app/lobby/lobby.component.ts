@@ -32,9 +32,9 @@ export class LobbyComponent implements OnInit {
   // }
   
   scoreToPlay = [
-    {id:1, name: "1"},
-    {id:2, name: "3"},
-    {id:3, name: "5"}
+    {id:1, name: "1", score: 1},
+    {id:2, name: "3", score: 3},
+    {id:3, name: "5", score: 5}
   ];
 
 

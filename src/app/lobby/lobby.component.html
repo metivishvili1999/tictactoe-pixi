@@ -15,6 +15,7 @@
               <option
                 *ngFor="let size of boardSize"
                 [ngValue]="size.cellNumber"
+                class="option"
               >
                 {{ size.name }}
               </option>
@@ -22,8 +23,11 @@
             </select>
             <select formControlName="score" (change)="selectScore($event)">
               <option [ngValue]="null" disabled required>Select score</option>
-              <option *ngFor="let score of scoreToPlay" [ngValue]="score.id">
-                {{ score.name }}
+              <option
+              class="option"
+               *ngFor="let score of scoreToPlay"
+                [ngValue]="score.score">
+                {{ score.score }}
               </option>
             </select>
 
