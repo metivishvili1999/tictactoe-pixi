@@ -15,9 +15,16 @@ button {
     background-color: #000034; 
 }
 
+
+.select {
+    background-color: #c94b4b;
+    background: #c94b4b;
+    color: #fff;
+}
+
+
 .option {
-    color: #333;
-    font-weight: 500;
+    color: #fff;
 }
 
 .card {
@@ -46,7 +53,7 @@ button {
 
 .options select{
     width: 120px;
-    background-color: #c94b4b33;
+    background-color: #bc454b;
     color: #fff;
     border: 2px solid #c94b4bc6;
     display: flex;

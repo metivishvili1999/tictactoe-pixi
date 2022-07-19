@@ -10,7 +10,7 @@
         <div class="options">
 
           <form [formGroup]="gameForm" (ngSubmit)="onSubmit()">
-            <select formControlName="size" (change)="selectSize($event)">
+            <select class="select" formControlName="size" (change)="selectSize($event)">
               <option id="checker" [ngValue]="null" disabled required><p>Select size</p></option>
               <option
                 *ngFor="let size of boardSize"
