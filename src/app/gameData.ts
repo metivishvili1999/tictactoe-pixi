@@ -7,6 +7,10 @@ class GameData {
         user:{
             sessionId: null
         },
+        gameTables: [],
+
+        gameConfigs:{boardSize:0, scoreToPlay:0},
+
         winningPositions: {
             matrix3:     [
                 [0,1,2],

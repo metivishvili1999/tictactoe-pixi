@@ -1,21 +1,21 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, Injectable, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { UserService } from '../_services/user.service';
 import * as gameData from '../gameData';
 import { __values } from 'tslib';
-import signalR from '@microsoft/signalr';
-
-
+import * as signalR from '@microsoft/signalr';
 
 @Component({
   selector: 'app-lobby',
   templateUrl: './lobby.component.html',
   styleUrls: ['./lobby.component.css']
 })
+
+
 export class LobbyComponent implements OnInit {
   content?: string;
+  isSubmitted!: boolean;
 
-  // contactForm!: FormGroup;
 
   boardSize = [
     {id:1, name: "3x3", cellNumber: 9},
@@ -23,14 +23,6 @@ export class LobbyComponent implements OnInit {
     {id:3, name: "5x5", cellNumber: 25}
   ];
 
-
-
-  isSubmitted!: boolean;
-
-  // toggle() {
-  //   this.isSubmitted = !this.isSubmitted;
-  // }
-  
   scoreToPlay = [
     {id:1, name: "1", score: 1},
     {id:2, name: "3", score: 3},
@@ -39,51 +31,80 @@ export class LobbyComponent implements OnInit {
 
 
   FormBuilder: any;
-
   gameForm: FormGroup = new FormGroup ({
   })
 
+  public connection: signalR.HubConnection
+  public isConnected: any;
 
-  constructor(private userService: UserService, private fb:FormBuilder) { }
 
+  constructor(private fb:FormBuilder, private ref: ChangeDetectorRef) {}
   ngOnInit(): void {
-    // this.userService.getPublicContent().subscribe({
-    //   next: data => {
-    //     this.content = data;
-    //   },
-    //   error: err => {
-    //     this.content = JSON.parse(err.error).message;
-    //   }
-    // });
-
 
     this.gameForm = this.fb.group ({
       size:[null],
       score:[null]
     });
+    
+    this.connection = new signalR.HubConnectionBuilder()  
+   .configureLogging(signalR.LogLevel.Information)  
+   .withUrl('http://172.25.36.202:8085/signalr', {
+       accessTokenFactory: () => 
+   gameData.data.data.user.sessionId })  
+   .build();  
 
+   if(gameData.data.data.user.sessionId != null) {
+    this.isConnected = this.connection.start().then(
+      function () {
+      console.log('SignalR Connected!');
+      }
+      ).catch(function (err) {  
+      return console.error(err.toString());  
+      });
+
+
+        this.connection.on('getallgame', (response) => {
+          gameData.data.data.gameTables = response;
+          console.warn(response);
+          this.ref.detectChanges();
+        });
+  
+        this.isConnected.then( () => {
+        
+            this.connection.invoke(
+              'CreateGame',  {
+                boardSize: this.boardSize,
+                scoreTarget: this. scoreToPlay
+              }
+              ).catch(err => console.error(err));
+          
+        });
+
+        this.connection.on('ongamecreate', (response) => {
+          console.warn(response);
+          this.ref.detectChanges();
+        });
+   }
 
 
   }
 
+  public get tables() {
+    return gameData.data.data.gameTables;
+  }
+
   selectSize(e:any): void {
     gameData.data.setboardSize(0);
-    
-
   }
 
   selectScore(e:any): void {
     gameData.data.setScore(0);
   }
 
-  
-
-
   onSubmit() {
     this.isSubmitted = true;
     this.gameForm.markAllAsTouched();
     if(this.gameForm.valid) {
-      console.log(this.gameForm.value)
       gameData.data.setboardSize(this.gameForm.value.size);
       gameData.data.setScore(this.gameForm.value.score);
     } else {

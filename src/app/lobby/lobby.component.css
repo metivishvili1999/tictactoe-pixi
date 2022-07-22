@@ -5,6 +5,7 @@ button {
     border-radius: 6px;
 }
 
+
 .btn {
     background-color: #000034; 
     border: none;
@@ -16,16 +17,36 @@ button {
 }
 
 
-.select {
+.select{
     background-color: #c94b4b;
     background: #c94b4b;
     color: #fff;
+    animation-name: my-animation;
+    animation-duration: 2s;
+    animation-direction: alternate;
+    animation-iteration-count: infinite;
+    animation-timing-function: linear;
 }
+
+
+@keyframes my-animation {
+    0% {
+      border:2px solid #fff;
+    }
+    50% {
+      border:2px solid rgba(255, 255, 255, 0.243)
+    }
+
+    100% {
+        border:2px solid #fff;
+    }
+  }
 
 
 .option {
     color: #fff;
 }
+
 
 .card {
     width: 18rem;
@@ -94,9 +115,9 @@ button {
     color: #fff;
     font-size: 20px;
     letter-spacing: 1px;
-    width: 180px;
+    padding-right: 80px;
     margin-bottom: 0;
-    line-height: 1.5;
+    line-height: 2;
 }
 
 
@@ -130,7 +151,7 @@ button {
 
     .match-info h3 {
         font-size: 15px;
-        width: 120px;
+        padding-right: 50px;
     }
 
     .join {
@@ -155,7 +176,8 @@ button {
 
     .match-info h3 {
         font-size: 12px;
-        width: 100px;
+        line-height: 2.5;
+        padding-right: 40px;
     }
 
     .join {
@@ -177,7 +199,7 @@ button {
 
     .match-info h3 {
         font-size: 12px;
-        width: 90px;
+        padding-right: 30px;
     }
 
 }
@@ -206,7 +228,7 @@ button {
     .match-info h3 {
         font-size: 12px;
         width: auto;
-        padding-right: 30px;
+        padding-right: 15px;
     }
 
     .btn {
@@ -220,7 +242,7 @@ button {
 
     .matchs {
         display: flex;
-        flex-direction: row;
+        flex-direction: column;
     }
 
     .match-info {
@@ -229,11 +251,17 @@ button {
 
     .match-info h3 {
         padding-right: 15px;
+        line-height: 1.5;
     }
 
+    .join {
+        padding-top: 10px;
+        text-align: center;
+    }
     .join button {
         font-size: 12px;
         padding: 5px 10px;
     }
 
 }
+

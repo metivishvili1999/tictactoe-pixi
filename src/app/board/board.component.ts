@@ -35,7 +35,7 @@ export class BoardComponent implements OnInit {
         player1: 0,
         player2: 0,
       };
-      
+
     let widthX = 600;
     let heightY = 600;
 
@@ -133,17 +133,15 @@ export class BoardComponent implements OnInit {
     gameField.position.set(93, 150);
 
     let scoretoplay = gameData.data.data.scoreToPlay;
+    let boardsize = gameData.data.data.boardSize;
+    let numberToWin = Math.sqrt(boardsize);
+    let squareSize = 400 / Math.sqrt(boardsize);
 
     let targetScore = (scoretoplay) => {
       var tScore = new Text(scoretoplay, style1);
       tScore.position.set(450, 70);
       gameWrapper.addChild(tScore);
     };
-
-    let boardsize = gameData.data.data.boardSize;
-    let numberToWin = Math.sqrt(boardsize);
-
-    let squareSize = 400 / Math.sqrt(boardsize);
 
     let addCells = (boardsize) => {
       for (let i = 0; i < boardsize; i++) {
@@ -171,7 +169,7 @@ export class BoardComponent implements OnInit {
       }
     };
 
-    ////////////////////////////////////////////
+    /////////////////// Match Winner Container /////////////////////////
     let gameEndScene = new Container();
     app.stage.addChild(gameEndScene);
     gameEndScene.visible = false;
@@ -182,28 +180,30 @@ export class BoardComponent implements OnInit {
 
     let resultText = new Text('', style);
     gameEndScene.addChild(resultText);
+    resultText.position.set(180, 150);
 
-    resultText.position.set(230, 150);
 
     let continueButton = new Text('CONTINUE', buttonStyle);
-    gameEndScene.addChild(continueButton);
+        continueButton.position.set(220, 220);
+        continueButton.interactive = true;
+        continueButton.buttonMode = true;
+        continueButton
+          .on('click', () => {
+            gameEndScene.visible = false;
+            addCells(boardsize);
+            this.bannerD = false;
+            this.bannerL = false;
+            this.bannerW = false;
+            gameWrapper.visible = true;
+          })
+          .on('pointerdown', (event) => onClick(continueButton))
+          .on('pointerover', (event) => onPointerOver(continueButton))
+          .on('pointerout', (event) => onPointerOut(continueButton));
+        gameEndScene.addChild(continueButton);
 
-    continueButton.position.set(250, 220);
-    continueButton.interactive = true;
-    continueButton.buttonMode = true;
-    continueButton.on('click', () => {
-      gameEndScene.visible = false;
-      addCells(boardsize);
-      this.bannerD = false;
-      this.bannerL = false;
-      this.bannerW = false;
-      gameWrapper.visible = true;
-    })
-    .on('pointerdown', (event) => onClick(continueButton))
-    .on('pointerover', (event) => onPointerOver(continueButton))
-    .on('pointerout', (event) => onPointerOut(continueButton));
 
-    ////////////////////////////////////////////////////
+        
+    ////////////////// Series Winner Container //////////////////////////////////
     let newScene = new Container();
     app.stage.addChild(newScene);
     newScene.visible = false;
@@ -217,24 +217,34 @@ export class BoardComponent implements OnInit {
     Winner.position.set(430, 150);
 
     let lobbyButton = new Text('Lobby', buttonStyle);
-    newScene.addChild(lobbyButton);
+        lobbyButton.position.set(250, 200);
+        lobbyButton.interactive = true;
+        lobbyButton.buttonMode = true;
+        lobbyButton
+          .on('click', () => {
+            document.body.removeChild(app.view);
+            this.route.navigateByUrl('/lobby');
+            this.bannerW = false;
+            this.bannerD = false;
+            this.bannerL = false;
+          })
+          .on('pointerover', () => onPointerOver(lobbyButton))
+          .on('pointerdown', () => onClick(lobbyButton))
+          .on('pointerout', () => onPointerOut(lobbyButton));
+        newScene.addChild(lobbyButton);
 
-    lobbyButton.position.set(250, 200);
-    lobbyButton.interactive = true;
-    lobbyButton.buttonMode = true;
-    lobbyButton
-    .on('click', () => {
-      document.body.removeChild(app.view);
-      this.route.navigateByUrl('/lobby');
-      this.bannerW = false;
-      this.bannerD = false;
-      this.bannerL = false;
-    })
-    .on('pointerover', () => onPointerOver(lobbyButton))
-    .on('pointerdown', () => onClick(lobbyButton))
-    .on('pointerout', () => onPointerOut(lobbyButton));
 
 
+    let winningPos;
+    let numb = boardsize;
+
+    if (numb === 9) {
+      winningPos = gameData.data.data.winningPositions.matrix3;
+    } else if (numb === 16) {
+      winningPos = gameData.data.data.winningPositions.matrix4;
+    } else if (numb === 25) {
+      winningPos = gameData.data.data.winningPositions.matrix5;
+    }
 
     function onClick(object) {
       object.tint = 0x333333;
@@ -306,17 +316,6 @@ export class BoardComponent implements OnInit {
       }
     };
 
-    let winningPos;
-    let numb = boardsize;
-
-    if (numb === 9) {
-      winningPos = gameData.data.data.winningPositions.matrix3;
-    } else if (numb === 16) {
-      winningPos = gameData.data.data.winningPositions.matrix4;
-    } else if (numb === 25) {
-      winningPos = gameData.data.data.winningPositions.matrix5;
-    }
-
     let check_X_win = (arr: any): boolean => {
       let xContainers = arr.filter((item: any) => item.value == 'x');
       let isWin = false;
@@ -387,7 +386,6 @@ export class BoardComponent implements OnInit {
       return isWin;
     };
 
-
     let draw = () => {
       if (moveCounter >= boardsize && !this.gameWinner) {
         this.bannerD = true;
@@ -434,7 +432,7 @@ export class BoardComponent implements OnInit {
     let showPlayerOneWin = () => {
       playerOneScoreText.text = ++score.player1;
       resultText.text = 'Player X win!';
-      resultText.x = 230;
+      resultText.x = 200;
     };
 
     let showPlayerTwoWin = () => {
