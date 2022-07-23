@@ -1,10 +1,8 @@
 import { ChangeDetectorRef, Component, Injectable, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
-import { UserService } from '../_services/user.service';
 import * as gameData from '../gameData';
 import { __values } from 'tslib';
 import * as signalR from '@microsoft/signalr';
-
 @Component({
   selector: 'app-lobby',
   templateUrl: './lobby.component.html',
@@ -18,15 +16,15 @@ export class LobbyComponent implements OnInit {
 
 
   boardSize = [
-    {id:1, name: "3x3", cellNumber: 9},
-    {id:2, name: "4x4", cellNumber: 16},
-    {id:3, name: "5x5", cellNumber: 25}
+    {id:3, name: "3x3", cellNumber: 9},
+    {id:4, name: "4x4", cellNumber: 16},
+    {id:5, name: "5x5", cellNumber: 25}
   ];
 
   scoreToPlay = [
     {id:1, name: "1", score: 1},
-    {id:2, name: "3", score: 3},
-    {id:3, name: "5", score: 5}
+    {id:3, name: "3", score: 3},
+    {id:5, name: "5", score: 5}
   ];
 
 
@@ -53,6 +51,7 @@ export class LobbyComponent implements OnInit {
    gameData.data.data.user.sessionId })  
    .build();  
 
+   
    if(gameData.data.data.user.sessionId != null) {
     this.isConnected = this.connection.start().then(
       function () {
@@ -68,25 +67,28 @@ export class LobbyComponent implements OnInit {
           console.warn(response);
           this.ref.detectChanges();
         });
-  
-        this.isConnected.then( () => {
-        
-            this.connection.invoke(
-              'CreateGame',  {
-                boardSize: this.boardSize,
-                scoreTarget: this. scoreToPlay
-              }
-              ).catch(err => console.error(err));
-          
-        });
 
-        this.connection.on('ongamecreate', (response) => {
-          console.warn(response);
+          this.connection.on('ongamecreate', (errorCode, errorMessage) => {
+          console.warn(errorCode, errorMessage);
           this.ref.detectChanges();
         });
+        // this.connection.on('ongamecreate', (response) => {
+        //   console.warn(response);
+        //   this.ref.detectChanges();
+        // });
    }
 
+  }
 
+  sendData() {
+    this.isConnected.then( () => {
+      this.connection.invoke(
+        'CreateGame',  {
+          BoardSize: gameData.data.data.boardSize,
+          ScoreTarget: gameData.data.data.scoreToPlay
+        }
+        ).catch(err => console.error(err));
+  });
   }
 
   public get tables() {
@@ -94,11 +96,11 @@ export class LobbyComponent implements OnInit {
   }
 
   selectSize(e:any): void {
-    gameData.data.setboardSize(0);
+    gameData.data.setboardSize(this.gameForm.value.size);
   }
 
   selectScore(e:any): void {
-    gameData.data.setScore(0);
+    gameData.data.setScore(this.gameForm.value.score);
   }
 
   onSubmit() {
