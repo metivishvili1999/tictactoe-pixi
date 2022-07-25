@@ -49,14 +49,15 @@ class GameData {
 
     }
 
+
     public setboardSize(size: number):void {
         this.data.boardSize = size;
     }
 
 
     public setScore(score: number):void {
-        this.data.scoreToPlay = score;
-    }
+      this.data.scoreToPlay = score;
+  }
 
 }
 

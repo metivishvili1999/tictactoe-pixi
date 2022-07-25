@@ -13,14 +13,12 @@
             <select class="select" formControlName="size" (change)="selectSize($event)">
               <option [ngValue]="null" disabled required><p>Select size</p></option>
               <option
-
                 *ngFor="let size of boardSize"
                 [ngValue]="size.cellNumber"
                 class="option"
               >
                 {{ size.name }}
               </option>
-
             </select>
             <select class="select" formControlName="score" (change)="selectScore($event)">
               <option [ngValue]="null" disabled required>Select score</option>
@@ -32,11 +30,12 @@
               </option>
             </select>
 
-            <button (click)="sendData()" class="btn btn-primary" type="submit">Create Match</button>
+            <button (click)="sendData()" class="btn btn-primary" 
+            type="submit" routerLink="/board" >Create Match</button>
           </form>
-          <a  href="#" *ngIf = "isSubmitted" class="btn btn-primary" routerLink="/board"
+          <!-- <a  href="#" *ngIf = "isSubmitted" class="btn btn-primary" routerLink="/board"
             >Join</a
-          >
+          > -->
         </div>
       </div>
     </div>
@@ -48,7 +47,7 @@
                 <h3>Score: {{ match.targetScore }} </h3>
             </div>
             <div class="join">
-                <button>Join</button>
+                <button (click)="joinGame(match.id)" routerLink="/board">Join</button>
             </div>
         </div>
     </div>

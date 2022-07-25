@@ -3,6 +3,7 @@ import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms'
 import * as gameData from '../gameData';
 import { __values } from 'tslib';
 import * as signalR from '@microsoft/signalr';
+import { Router } from '@angular/router';
 @Component({
   selector: 'app-lobby',
   templateUrl: './lobby.component.html',
@@ -36,7 +37,7 @@ export class LobbyComponent implements OnInit {
   public isConnected: any;
 
 
-  constructor(private fb:FormBuilder, private ref: ChangeDetectorRef) {}
+  constructor(private route: Router,private fb:FormBuilder, private ref: ChangeDetectorRef) {}
   ngOnInit(): void {
 
     this.gameForm = this.fb.group ({
@@ -64,20 +65,20 @@ export class LobbyComponent implements OnInit {
 
         this.connection.on('getallgame', (response) => {
           gameData.data.data.gameTables = response;
+          gameData.data.setboardSize(response[0].boardSize);
+          gameData.data.setScore(response[0].targetScore);
           console.warn(response);
           this.ref.detectChanges();
+        });
+        this.connection.on('ongamejoin', (response) => {
+          console.warn(response);
         });
 
           this.connection.on('ongamecreate', (errorCode, errorMessage) => {
           console.warn(errorCode, errorMessage);
           this.ref.detectChanges();
         });
-        // this.connection.on('ongamecreate', (response) => {
-        //   console.warn(response);
-        //   this.ref.detectChanges();
-        // });
    }
-
   }
 
   sendData() {
@@ -88,12 +89,25 @@ export class LobbyComponent implements OnInit {
           ScoreTarget: gameData.data.data.scoreToPlay
         }
         ).catch(err => console.error(err));
+
   });
   }
+
+  joinGame(id) {
+    this.isConnected.then( () => {
+      this.connection.invoke(
+        'JoinToGame', {
+          GameId:id
+        }
+      ).catch(err => console.error(err));
+    })
+  }
+  
 
   public get tables() {
     return gameData.data.data.gameTables;
   }
+
 
   selectSize(e:any): void {
     gameData.data.setboardSize(this.gameForm.value.size);

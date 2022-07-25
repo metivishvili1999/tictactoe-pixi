@@ -2,8 +2,8 @@ import { Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
 import { Container, Application, Sprite, TextStyle, Texture } from 'pixi.js';
 import * as pixi from 'pixi.js';
 import * as gameData from '../gameData';
-import { LobbyComponent } from '../lobby/lobby.component';
 import { Router } from '@angular/router';
+import * as signalR from '@microsoft/signalr';
 
 @Component({
   selector: 'app-board',
@@ -17,9 +17,34 @@ export class BoardComponent implements OnInit {
   public bannerD;
   public gameWinner;
 
+
+  public get tables() {
+    return gameData.data.data.gameTables;
+  }
+
+  public connection: signalR.HubConnection
+  public isConnected: any;
+
   constructor(private route: Router) {}
 
   ngOnInit(): void {
+    this.connection = new signalR.HubConnectionBuilder()  
+   .configureLogging(signalR.LogLevel.Information)  
+   .withUrl('http://172.25.36.202:8085/signalr', {
+       accessTokenFactory: () => 
+   gameData.data.data.user.sessionId })  
+   .build();  
+
+   if(gameData.data.data.user.sessionId != null) {
+    this.isConnected = this.connection.start().then(
+      function () {
+      console.log('SignalR Connected!');
+      }
+      ).catch(function (err) {  
+      return console.error(err.toString());  
+      });
+   }
+
     console.warn(gameData.data);
     let Application = pixi.Application,
       Container = pixi.Container,
@@ -93,9 +118,13 @@ export class BoardComponent implements OnInit {
     scoreLine.lineTo(515, 60);
     scoreLine.alpha = 0.3;
 
-    let firstP = new Text('Player X: ', style1);
+    let firstP = new Text('Player ', style1);
     gameWrapper.addChild(firstP);
     firstP.position.set(100, 70);
+
+    // let pl1 = 
+    // gameWrapper.addChild(pl1);
+    // pl1.position.set(430, 150);
 
     let playerOneScoreText = new Text(score.player1, style1);
     gameWrapper.addChild(playerOneScoreText);

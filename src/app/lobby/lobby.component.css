@@ -265,3 +265,14 @@ button {
 
 }
 
+.select.ng-invalid.ng-touched .ng-select-container{
+    border-color: red;
+}
+/* Arrow Color */
+.select.ng-invalid.ng-touched .ng-arrow-wrapper .ng-arrow{
+    border-color: red transparent transparent
+}
+/* Placeholder Color */
+.select.ng-invalid.ng-touched .ng-select-container .ng-placeholder{
+    color: red;
+}
