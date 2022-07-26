@@ -1,9 +1,11 @@
-import { Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, ElementRef, Input, OnInit, TestabilityRegistry, ViewChild } from '@angular/core';
 import { Container, Application, Sprite, TextStyle, Texture } from 'pixi.js';
 import * as pixi from 'pixi.js';
 import * as gameData from '../gameData';
 import { Router } from '@angular/router';
 import * as signalR from '@microsoft/signalr';
+import { FormBuilder, FormGroup } from '@angular/forms';
+import { identifierName } from '@angular/compiler';
 
 @Component({
   selector: 'app-board',
@@ -18,16 +20,18 @@ export class BoardComponent implements OnInit {
   public gameWinner;
 
 
-  public get tables() {
-    return gameData.data.data.gameTables;
-  }
+  FormBuilder: any;
+  gameForm: FormGroup = new FormGroup ({
+  })
+
 
   public connection: signalR.HubConnection
   public isConnected: any;
 
-  constructor(private route: Router) {}
+  constructor(private route: Router, private ref: ChangeDetectorRef) {}
 
   ngOnInit(): void {
+
     this.connection = new signalR.HubConnectionBuilder()  
    .configureLogging(signalR.LogLevel.Information)  
    .withUrl('http://172.25.36.202:8085/signalr', {
@@ -43,9 +47,18 @@ export class BoardComponent implements OnInit {
       ).catch(function (err) {  
       return console.error(err.toString());  
       });
+
+      this.connection.on('nextturn', (response) => {
+        console.warn(response);
+      });
+      this.connection.on('ongamecreate', (errorCode, errorMessage) => {
+        console.warn(errorCode, errorMessage);
+        this.ref.detectChanges();
+      });
+
    }
 
-    console.warn(gameData.data);
+
     let Application = pixi.Application,
       Container = pixi.Container,
       Graphics = pixi.Graphics,
@@ -122,6 +135,8 @@ export class BoardComponent implements OnInit {
     gameWrapper.addChild(firstP);
     firstP.position.set(100, 70);
 
+
+
     // let pl1 = 
     // gameWrapper.addChild(pl1);
     // pl1.position.set(430, 150);
@@ -179,6 +194,7 @@ export class BoardComponent implements OnInit {
         var bg = new pixi.Sprite(pixi.Texture.WHITE);
         bg.position.set(0, 0);
         bg.alpha = 0.1;
+        cell['name'] = i.toString();
         bg.width = squareSize;
         bg.height = squareSize;
         cell.addChild(bg);
@@ -288,6 +304,7 @@ export class BoardComponent implements OnInit {
     }
 
     let addValue = (cell) => {
+      console.log(cell, cell.name)
       if (turnX && !cell.isFilled) {
         let x: Sprite = Sprite.from('assets/images/x.png');
         x.width = squareSize;
@@ -311,6 +328,8 @@ export class BoardComponent implements OnInit {
         cell.isFilled = true;
         cell.value = 'o';
       }
+      let index = Number.parseInt(cell.name);
+      this.sendMove(index%Math.sqrt(boardsize),index/Math.sqrt(boardsize));
 
       checkWin();
     };
@@ -469,5 +488,22 @@ export class BoardComponent implements OnInit {
       resultText.text = 'Player O win!';
       resultText.x = 230;
     };
+  }
+
+  sendMove(row,column) {
+    this.isConnected.then( () => {
+      this.connection.invoke(
+        'MakeMove',  {
+          gameId:gameData.data.data.activeGame,
+          Row: row,
+          Column: column
+        }
+        ).catch(err => console.error(err));
+
+  });
+  }
+
+  public get tables() {
+    return gameData.data.data.gameTables;
   }
 }

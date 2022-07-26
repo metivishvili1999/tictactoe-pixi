@@ -65,12 +65,18 @@ export class LobbyComponent implements OnInit {
 
         this.connection.on('getallgame', (response) => {
           gameData.data.data.gameTables = response;
+          let game = response.filter(
+            (player) => {
+              player.playerOne.userName == gameData.data.data.user.userName || player.playerTwo.userName == gameData.data.data.user.userName
+            }
+            )[0];
+          gameData.data.data.activeGame = game ? game.id : 0;
           gameData.data.setboardSize(response[0].boardSize);
           gameData.data.setScore(response[0].targetScore);
           console.warn(response);
           this.ref.detectChanges();
         });
-        this.connection.on('ongamejoin', (response) => {
+        this.connection.on('nextturn', (response) => {
           console.warn(response);
         });
 
@@ -99,7 +105,10 @@ export class LobbyComponent implements OnInit {
         'JoinToGame', {
           GameId:id
         }
-      ).catch(err => console.error(err));
+      ).then( () => {
+        gameData.data.data.activeGame = id
+      })
+      .catch(err => console.error(err));
     })
   }
   
@@ -107,7 +116,6 @@ export class LobbyComponent implements OnInit {
   public get tables() {
     return gameData.data.data.gameTables;
   }
-
 
   selectSize(e:any): void {
     gameData.data.setboardSize(this.gameForm.value.size);

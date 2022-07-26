@@ -5,9 +5,12 @@ class GameData {
         boardSize: 0,
         scoreToPlay: 0,
         user:{
-            sessionId: null
+            sessionId: null,
+            userName: null
         },
         gameTables: [],
+        activeGame: 0,
+        userName: [],
         winningPositions: {
             matrix3:     [
                 [0,1,2],

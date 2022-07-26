@@ -35,6 +35,7 @@ export class LoginComponent implements OnInit {
         this.isLoginFailed = false;
         this.isLoggedIn = true;
         gameData.data.data.user.sessionId = data.sessionId;
+        gameData.data.data.user.userName = userName;
         this.route.navigateByUrl('/home');
       },
       error: err => {
