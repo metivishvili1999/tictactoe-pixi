@@ -1,11 +1,10 @@
 import { ChangeDetectorRef, Component, ElementRef, Input, OnInit, TestabilityRegistry, ViewChild } from '@angular/core';
-import { Container, Application, Sprite, TextStyle, Texture } from 'pixi.js';
+import { Container, Application, Sprite, TextStyle, Texture, Resource } from 'pixi.js';
 import * as pixi from 'pixi.js';
 import * as gameData from '../gameData';
 import { Router } from '@angular/router';
 import * as signalR from '@microsoft/signalr';
 import { FormBuilder, FormGroup } from '@angular/forms';
-import { identifierName } from '@angular/compiler';
 
 @Component({
   selector: 'app-board',
@@ -27,16 +26,16 @@ export class BoardComponent implements OnInit {
 
   public connection: signalR.HubConnection
   public isConnected: any;
+  gameData: any;
 
   constructor(private route: Router, private ref: ChangeDetectorRef) {}
 
   ngOnInit(): void {
-
     this.connection = new signalR.HubConnectionBuilder()  
    .configureLogging(signalR.LogLevel.Information)  
    .withUrl('http://172.25.36.202:8085/signalr', {
        accessTokenFactory: () => 
-   gameData.data.data.user.sessionId })  
+   gameData.data.data.user.sessionId })
    .build();  
 
    if(gameData.data.data.user.sessionId != null) {
@@ -48,8 +47,8 @@ export class BoardComponent implements OnInit {
       return console.error(err.toString());  
       });
 
-      this.connection.on('nextturn', (response) => {
-        console.warn(response);
+      this.connection.on('nextturn', (response, resp) => {
+        console.warn(response, resp);
       });
       this.connection.on('ongamecreate', (errorCode, errorMessage) => {
         console.warn(errorCode, errorMessage);
@@ -136,8 +135,7 @@ export class BoardComponent implements OnInit {
     firstP.position.set(100, 70);
 
 
-
-    // let pl1 = 
+    // let pl1 
     // gameWrapper.addChild(pl1);
     // pl1.position.set(430, 150);
 
@@ -330,7 +328,6 @@ export class BoardComponent implements OnInit {
       }
       let index = Number.parseInt(cell.name);
       this.sendMove(index%Math.sqrt(boardsize),index/Math.sqrt(boardsize));
-
       checkWin();
     };
 

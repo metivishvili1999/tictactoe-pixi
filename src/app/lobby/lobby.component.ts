@@ -15,6 +15,7 @@ import * as gameData from '../gameData';
 import { __values } from 'tslib';
 import * as signalR from '@microsoft/signalr';
 import { Router } from '@angular/router';
+
 @Component({
   selector: 'app-lobby',
   templateUrl: './lobby.component.html',
@@ -93,6 +94,7 @@ export class LobbyComponent implements OnInit {
     }
   }
 
+
   sendData() {
     this.isConnected.then(() => {
       this.connection
@@ -109,9 +111,11 @@ export class LobbyComponent implements OnInit {
       this.connection
         .invoke('JoinToGame', {
           GameId: id,
+          
         })
         .then(() => {
           gameData.data.data.activeGame = id;
+          console.log(id);
         })
         .catch((err) => console.error(err));
     });

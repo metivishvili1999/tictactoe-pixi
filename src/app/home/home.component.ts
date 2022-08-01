@@ -24,8 +24,6 @@ export class HomeComponent implements OnInit {
     this.isSubmitted = !this.isSubmitted;
   }
 
-
-
   login() {
     this.route.navigateByUrl('/lobby');
  }
@@ -57,7 +55,6 @@ export class HomeComponent implements OnInit {
     });
   }
 
-  
 
   onSubmit() {
     this.isSubmitted = true;
@@ -68,7 +65,5 @@ export class HomeComponent implements OnInit {
       console.log('Form is not')
     }
   }
-
-  
 
 }
