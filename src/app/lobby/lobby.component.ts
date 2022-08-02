@@ -15,7 +15,6 @@ import * as gameData from '../gameData';
 import { __values } from 'tslib';
 import * as signalR from '@microsoft/signalr';
 import { Router } from '@angular/router';
-
 @Component({
   selector: 'app-lobby',
   templateUrl: './lobby.component.html',
@@ -121,6 +120,8 @@ export class LobbyComponent implements OnInit {
     });
   }
 
+
+
   public get tables() {
     return gameData.data.data.gameTables;
   }
@@ -144,3 +145,5 @@ export class LobbyComponent implements OnInit {
     }
   }
 }
+
+

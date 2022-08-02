@@ -2,6 +2,7 @@
 import { Component, OnInit } from '@angular/core';
 import { TokenStorageService } from './_services/token-storage.service';
 import * as gameData from './gameData'; 
+import { Router, RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-root',
@@ -10,7 +11,7 @@ import * as gameData from './gameData';
 })
 export class AppComponent implements OnInit{
   userName?: string;
-  constructor(private tokenStorageService: TokenStorageService) {}
+  constructor(private route: Router,private tokenStorageService: TokenStorageService) {}
 
   ngOnInit(){
 
@@ -27,6 +28,12 @@ export class AppComponent implements OnInit{
   logout(): void {
     this.tokenStorageService.signOut();
     window.location.reload();
+  }
+
+  home(): void {
+    window.location.reload();
+    this.route.navigateByUrl('/home');
+
   }
 
 

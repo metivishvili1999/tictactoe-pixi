@@ -47,8 +47,20 @@ export class BoardComponent implements OnInit {
       return console.error(err.toString());  
       });
 
+      this.connection.on('getallgame', (response) => {
+        gameData.data.data.gameTables = response;
+        let game = response.filter((player) => {
+          player.playerOne.userName == gameData.data.data.user.userName ||
+            player.playerTwo.userName == gameData.data.data.user.userName;
+        })[0];
+        gameData.data.data.activeGame = game ? game.id : 0;
+        gameData.data.setboardSize(response[0].boardSize);
+        gameData.data.setScore(response[0].targetScore);
+        console.warn(response);
+        this.ref.detectChanges();
+      });
       this.connection.on('nextturn', (response, resp) => {
-        console.warn(response, resp);
+        console.warn(response,resp);
       });
       this.connection.on('ongamecreate', (errorCode, errorMessage) => {
         console.warn(errorCode, errorMessage);
@@ -83,6 +95,9 @@ export class BoardComponent implements OnInit {
     });
 
     document.body.appendChild(app.view);
+
+    
+    
 
     let loadingScreen = new Container();
     app.stage.addChild(loadingScreen);
@@ -225,7 +240,6 @@ export class BoardComponent implements OnInit {
     gameEndScene.addChild(resultText);
     resultText.position.set(180, 150);
 
-
     let continueButton = new Text('CONTINUE', buttonStyle);
         continueButton.position.set(220, 220);
         continueButton.interactive = true;
@@ -265,7 +279,7 @@ export class BoardComponent implements OnInit {
         lobbyButton.buttonMode = true;
         lobbyButton
           .on('click', () => {
-            document.body.removeChild(app.view);
+            deleteBoard();
             this.route.navigateByUrl('/lobby');
             this.bannerW = false;
             this.bannerD = false;
@@ -275,7 +289,6 @@ export class BoardComponent implements OnInit {
           .on('pointerdown', () => onClick(lobbyButton))
           .on('pointerout', () => onPointerOut(lobbyButton));
         newScene.addChild(lobbyButton);
-
 
 
     let winningPos;
@@ -485,6 +498,11 @@ export class BoardComponent implements OnInit {
       resultText.text = 'Player O win!';
       resultText.x = 230;
     };
+
+    let deleteBoard = () => {
+      document.body.removeChild(app.view);
+    }
+    
   }
 
   sendMove(row,column) {
@@ -496,7 +514,6 @@ export class BoardComponent implements OnInit {
           Column: column
         }
         ).catch(err => console.error(err));
-
   });
   }
 
