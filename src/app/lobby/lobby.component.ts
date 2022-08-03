@@ -72,18 +72,18 @@ export class LobbyComponent implements OnInit {
 
       this.connection.on('getallgame', (response) => {
         gameData.data.data.gameTables = response;
-        let game = response.filter((player) => {
-          player.playerOne.userName == gameData.data.data.user.userName ||
-            player.playerTwo.userName == gameData.data.data.user.userName;
-        })[0];
-        gameData.data.data.activeGame = game ? game.id : 0;
+        // let game = response.filter((player) => {
+        //   player.playerOne.userName == gameData.data.data.user.userName ||
+        //     player.playerTwo.userName == gameData.data.data.user.userName;
+        // })[0];
+        // gameData.data.data.activeGame = game ? game.id : 0;
         gameData.data.setboardSize(response[0].boardSize);
         gameData.data.setScore(response[0].targetScore);
         console.warn(response);
         this.ref.detectChanges();
       });
-      this.connection.on('nextturn', (response) => {
-        console.warn(response);
+      this.connection.on('nextturn', (response, resp) => {
+        console.warn(response, resp);
       });
 
       this.connection.on('ongamecreate', (errorCode, errorMessage) => {

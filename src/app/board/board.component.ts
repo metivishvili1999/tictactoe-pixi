@@ -1,10 +1,10 @@
-import { ChangeDetectorRef, Component, ElementRef, Input, OnInit, TestabilityRegistry, ViewChild } from '@angular/core';
-import { Container, Application, Sprite, TextStyle, Texture, Resource } from 'pixi.js';
+import { ChangeDetectorRef, Component,OnInit} from '@angular/core';
+import { Sprite} from 'pixi.js';
 import * as pixi from 'pixi.js';
 import * as gameData from '../gameData';
 import { Router } from '@angular/router';
 import * as signalR from '@microsoft/signalr';
-import { FormBuilder, FormGroup } from '@angular/forms';
+import { FormGroup } from '@angular/forms';
 
 @Component({
   selector: 'app-board',
@@ -46,21 +46,27 @@ export class BoardComponent implements OnInit {
       ).catch(function (err) {  
       return console.error(err.toString());  
       });
-
       this.connection.on('getallgame', (response) => {
         gameData.data.data.gameTables = response;
-        let game = response.filter((player) => {
-          player.playerOne.userName == gameData.data.data.user.userName ||
-            player.playerTwo.userName == gameData.data.data.user.userName;
+
+        response.filter((player) => {
+          if(player.playerOne.userName == gameData.data.data.user.userName || 
+            player.playerTwo.userName == gameData.data.data.user.userName) {
+              gameData.data.data.activeGame = player.id;
+              gameData.data.data.playerOne = player.playerOne.userName;
+              gameData.data.data.playerTwo = player.playerTwo.userName;
+            }
         })[0];
-        gameData.data.data.activeGame = game ? game.id : 0;
+        console.log(gameData.data.data.playerTwo)
+        console.log(gameData.data.data.playerOne)
         gameData.data.setboardSize(response[0].boardSize);
         gameData.data.setScore(response[0].targetScore);
         console.warn(response);
         this.ref.detectChanges();
       });
-      this.connection.on('nextturn', (response, resp) => {
-        console.warn(response,resp);
+      this.connection.on('nextturn', (response,message, row, column, value) => {
+        drawMove(row, column, value, boardsize);
+        console.warn(response,message, row, column, value);
       });
       this.connection.on('ongamecreate', (errorCode, errorMessage) => {
         console.warn(errorCode, errorMessage);
@@ -68,7 +74,6 @@ export class BoardComponent implements OnInit {
       });
 
    }
-
 
     let Application = pixi.Application,
       Container = pixi.Container,
@@ -95,9 +100,6 @@ export class BoardComponent implements OnInit {
     });
 
     document.body.appendChild(app.view);
-
-    
-    
 
     let loadingScreen = new Container();
     app.stage.addChild(loadingScreen);
@@ -145,22 +147,19 @@ export class BoardComponent implements OnInit {
     scoreLine.lineTo(515, 60);
     scoreLine.alpha = 0.3;
 
-    let firstP = new Text('Player ', style1);
-    gameWrapper.addChild(firstP);
-    firstP.position.set(100, 70);
 
-
-    // let pl1 
-    // gameWrapper.addChild(pl1);
-    // pl1.position.set(430, 150);
+    console.log(gameData.data.data.playerOne)
+    let pl1 = new Text(gameData.data.data.playerOne + ':', style1)
+    gameWrapper.addChild(pl1);
+    pl1.position.set(100, 70);
 
     let playerOneScoreText = new Text(score.player1, style1);
     gameWrapper.addChild(playerOneScoreText);
     playerOneScoreText.position.set(210, 69);
 
-    let secondP = new Text('Player Y: ', style1);
-    gameWrapper.addChild(secondP);
-    secondP.position.set(100, 110);
+    let pl2 = new Text(gameData.data.data.playerTwo + ':', style1)
+    gameWrapper.addChild(pl2);
+    pl2.position.set(100, 110);
 
     let playerTwoScoreText = new Text(score.player2, style1);
     gameWrapper.addChild(playerTwoScoreText);
@@ -171,13 +170,13 @@ export class BoardComponent implements OnInit {
 
     currentTurnText.position.set(300, 110);
 
-    let turnXImage: Sprite = Sprite.from('assets/images/x.png');
+    let turnXImage: Sprite = Sprite.from('assets/images/X.png');
     currentTurnText.addChild(turnXImage);
 
     turnXImage.scale.set(0.3);
     turnXImage.position.set(70, 3);
 
-    let turnOImage: Sprite = Sprite.from('assets/images/o.png');
+    let turnOImage: Sprite = Sprite.from('assets/images/O.png');
     currentTurnText.addChild(turnOImage);
     turnOImage.scale.set(0.3);
     turnOImage.position.set(70, 3);
@@ -204,6 +203,7 @@ export class BoardComponent implements OnInit {
       for (let i = 0; i < boardsize; i++) {
         let cell = new Container();
         gameField.addChild(cell);
+        gameField.setChildIndex(cell, i);
         var bg = new pixi.Sprite(pixi.Texture.WHITE);
         bg.position.set(0, 0);
         bg.alpha = 0.1;
@@ -213,13 +213,34 @@ export class BoardComponent implements OnInit {
         cell.addChild(bg);
         cell.x = (i % Math.sqrt(boardsize)) * (squareSize + 5);
         cell.y = Math.floor(i / Math.sqrt(boardsize)) * (squareSize + 5);
-
+        
         cell.interactive = true;
         cell.on('click', () => {
           addValue(cell);
         });
       }
-    };
+    }; // [ [x,0,x], [xox], [o,o,o] ]
+
+
+    const xxx = (boardSize, gameCell) => {
+      let index = Math.sqrt(boardSize);
+
+      console.log('index: ' + index)
+      let currentCell = 0;
+      for(let r = 0; r <index; r++ ){
+        for(let c = 0; c < index; c++){
+          if(currentCell === gameCell){
+            return {row: r, column: c}
+          }
+          if(c != index -1){
+            currentCell+=1;
+          }
+          
+        }
+        currentCell+=1;
+      }
+      throw 'invalid gameCell';
+    }
 
     let removeCells = () => {
       for (var i = gameField.children.length - 1; i >= 0; i--) {
@@ -305,19 +326,54 @@ export class BoardComponent implements OnInit {
     function onClick(object) {
       object.tint = 0x333333;
     }
-
     function onPointerOver(object) {
       object.tint = 0x666666;
     }
-
     function onPointerOut(object) {
       object.tint = 0xffffff;
     }
 
+
+    let drawMove = (row, column, value, boardSize) => {
+      var index = Math.sqrt(boardSize)
+      let childIndex = 0;
+      let isBreak = false;
+      for(let r = 0; r <index; r++ ){
+        for(let c = 0; c < index; c++){
+
+          if(row == r && column == c){
+            isBreak = true;
+            break;
+          }
+
+          childIndex++;
+        }
+
+        if(isBreak){
+          break;
+        }
+      }
+
+      var cell = gameField.getChildAt(childIndex);
+      if(cell.isFilled){
+        return;
+      }
+
+      let x: Sprite = Sprite.from(`assets/images/${value}.png`);
+      x.width = squareSize;
+      x.height = squareSize;
+      x.position.x = squareSize / 10;
+      x.position.y = squareSize / 10;
+      cell.addChild(x);
+      turnX = !turnX;
+      cell.isFilled = true;
+      cell.value = value;
+    }
+    
     let addValue = (cell) => {
       console.log(cell, cell.name)
       if (turnX && !cell.isFilled) {
-        let x: Sprite = Sprite.from('assets/images/x.png');
+        let x: Sprite = Sprite.from('assets/images/X.png');
         x.width = squareSize;
         x.height = squareSize;
         x.position.x = squareSize / 10;
@@ -329,7 +385,7 @@ export class BoardComponent implements OnInit {
       }
 
       if (!turnX && !cell.isFilled) {
-        let o: Sprite = Sprite.from('assets/images/o.png');
+        let o: Sprite = Sprite.from('assets/images/O.png');
         o.width = squareSize;
         o.height = squareSize;
         o.position.x = squareSize / 10;
@@ -340,7 +396,9 @@ export class BoardComponent implements OnInit {
         cell.value = 'o';
       }
       let index = Number.parseInt(cell.name);
-      this.sendMove(index%Math.sqrt(boardsize),index/Math.sqrt(boardsize));
+      let {row, column} = xxx(boardsize, index);
+      console.log(row, column);
+      this.sendMove(row, column);
       checkWin();
     };
 
@@ -502,22 +560,27 @@ export class BoardComponent implements OnInit {
     let deleteBoard = () => {
       document.body.removeChild(app.view);
     }
-    
   }
 
   sendMove(row,column) {
     this.isConnected.then( () => {
       this.connection.invoke(
+        
         'MakeMove',  {
-          gameId:gameData.data.data.activeGame,
+          
+          GameId: gameData.data.data.activeGame,
           Row: row,
           Column: column
         }
         ).catch(err => console.error(err));
+        console.log(row, column);
+        
   });
   }
 
   public get tables() {
     return gameData.data.data.gameTables;
   }
+
 }
+

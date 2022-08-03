@@ -6,11 +6,13 @@ class GameData {
         scoreToPlay: 0,
         user:{
             sessionId: null,
-            userName: null
+            userName: null,
+            userName1: null
         },
         gameTables: [],
         activeGame: 0,
-        userName: [],
+        playerOne: null,
+        playerTwo: null,
         winningPositions: {
             matrix3:     [
                 [0,1,2],
@@ -57,11 +59,9 @@ class GameData {
         this.data.boardSize = size;
     }
 
-
     public setScore(score: number):void {
       this.data.scoreToPlay = score;
   }
-
 }
 
 const data = new GameData();
