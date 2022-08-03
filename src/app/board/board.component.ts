@@ -201,7 +201,7 @@ export class BoardComponent implements OnInit {
 
     let addCells = (boardsize) => {
       for (let i = 0; i < boardsize; i++) {
-        let cell = new Container();
+          let cell = new Container();
         gameField.addChild(cell);
         gameField.setChildIndex(cell, i);
         var bg = new pixi.Sprite(pixi.Texture.WHITE);
@@ -218,7 +218,7 @@ export class BoardComponent implements OnInit {
         cell.on('click', () => {
           addValue(cell);
         });
-      }
+        }
     }; // [ [x,0,x], [xox], [o,o,o] ]
 
 
