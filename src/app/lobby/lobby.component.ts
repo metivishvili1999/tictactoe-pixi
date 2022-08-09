@@ -82,8 +82,8 @@ export class LobbyComponent implements OnInit {
         console.warn(response);
         this.ref.detectChanges();
       });
-      this.connection.on('nextturn', (response, resp) => {
-        console.warn(response, resp);
+      this.connection.on('nextturn', (response,message, row, column, value) => {
+        // console.warn(response,message, row, column, value);
       });
 
       this.connection.on('ongamecreate', (errorCode, errorMessage) => {

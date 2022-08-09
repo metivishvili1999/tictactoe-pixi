@@ -5,19 +5,25 @@ import * as gameData from '../gameData';
 import { Router } from '@angular/router';
 import * as signalR from '@microsoft/signalr';
 import { FormGroup } from '@angular/forms';
+import { UsernamesService } from './usernames.service';
 
 @Component({
   selector: 'app-board',
   templateUrl: './board.component.html',
+  providers: [UsernamesService],
   styleUrls: ['./board.component.css'],
 })
 export class BoardComponent implements OnInit {
   items: any;
+  gameState;
+  turnIcon;
   public bannerW;
   public bannerL;
   public bannerD;
   public gameWinner;
+  isFilled: boolean = false;
 
+  clicked: boolean = true;
 
   FormBuilder: any;
   gameForm: FormGroup = new FormGroup ({
@@ -28,7 +34,7 @@ export class BoardComponent implements OnInit {
   public isConnected: any;
   gameData: any;
 
-  constructor(private route: Router, private ref: ChangeDetectorRef) {}
+  constructor(private route: Router, private ref: ChangeDetectorRef, private Usernameservice: UsernamesService) {}
 
   ngOnInit(): void {
     this.connection = new signalR.HubConnectionBuilder()  
@@ -53,21 +59,163 @@ export class BoardComponent implements OnInit {
           if(player.playerOne.userName == gameData.data.data.user.userName || 
             player.playerTwo.userName == gameData.data.data.user.userName) {
               gameData.data.data.activeGame = player.id;
+              this.Usernameservice.setUsers({user1: player.playerOne.userName, user2: player.playerTwo.userName})
+              this.gameState = player.stateId;
               gameData.data.data.playerOne = player.playerOne.userName;
               gameData.data.data.playerTwo = player.playerTwo.userName;
             }
         })[0];
-        console.log(gameData.data.data.playerTwo)
-        console.log(gameData.data.data.playerOne)
         gameData.data.setboardSize(response[0].boardSize);
         gameData.data.setScore(response[0].targetScore);
+
+
+
+        if(gameData.data.data.playerOne === gameData.data.data.user.userName) {
+          showS.visible = false;
+        }
+        if(gameData.data.data.playerTwo === gameData.data.data.user.userName) {
+          showF.visible = false;
+        }
+
+        setTimeout(() => {
+          showF.visible = false;
+          showS.visible = false;
+        }, 8000);
         console.warn(response);
         this.ref.detectChanges();
       });
       this.connection.on('nextturn', (response,message, row, column, value) => {
-        drawMove(row, column, value, boardsize);
-        console.warn(response,message, row, column, value);
+        if(this.gameState === 2) {
+          if(response === 1 ) {
+            drawMove(row, column, value, boardsize);
+
+            changeTurnImage();
+          } 
+          else if (response === -1) {
+            console.log(response)
+          }
+          console.warn(response,message, row, column, value);
+        } else {
+          console.log('wait for ur opponent')
+        }
       });
+
+      this.connection.on('gameend', (response, resp, r) => {
+        if(response === gameData.data.data.scoreToPlay) {
+          if(gameData.data.data.playerOne === gameData.data.data.user.userName) {
+            removeCells();
+            showPlayerOneWin();
+            this.bannerW = true;
+            setTimeout(() => {
+              this.bannerW = false;
+              gameWrapper.visible = false;
+              newScene.visible = false;
+              gameEndScene.visible = false;
+              gameField.visible = false;
+              this.route.navigateByUrl('/lobby');
+            }, 3000);
+            turnX = !turnX;
+          } else if(gameData.data.data.playerTwo === gameData.data.data.user.userName) {
+            removeCells();
+            showPlayerOneWin();
+            this.bannerL = true;
+            setTimeout(() => {
+              gameWrapper.visible = false;
+              newScene.visible = false;
+              gameEndScene.visible = false;
+              gameField.visible = false;
+              this.route.navigateByUrl('/lobby');
+              this.bannerL = false;
+            }, 3000);
+            turnX = !turnX;
+          }
+        }
+        if( resp === gameData.data.data.scoreToPlay) {
+          if(gameData.data.data.playerOne === gameData.data.data.user.userName) {
+            removeCells();
+            showPlayerTwoWin();
+            this.bannerL = true;
+            setTimeout(() => {
+              this.bannerL = false;
+              gameWrapper.visible = false;
+              newScene.visible = false;
+              gameEndScene.visible = false;
+              gameField.visible = false;
+              this.route.navigateByUrl('/lobby');
+            }, 3000);
+            turnX = !turnX;
+          } else if(gameData.data.data.playerTwo === gameData.data.data.user.userName) {
+            removeCells();
+            showPlayerTwoWin();
+            this.bannerW = true;
+            setTimeout(() => {
+              this.bannerW = false;
+              gameWrapper.visible = false;
+              newScene.visible = false;
+              gameEndScene.visible = false;
+              gameField.visible = false;
+              this.route.navigateByUrl('/lobby');
+            }, 3000);
+            turnX = !turnX;
+          }
+        }
+        console.warn(response, resp, r)
+      })
+
+      this.connection.on('matchend', (response, resp, r) => {
+        if(response !== 0) {
+          if(gameData.data.data.playerOne === gameData.data.data.user.userName) {
+            turnOImage.visible = false;
+            turnXImage.visible = true;
+            removeCells();
+            showPlayerOneWin();
+            this.bannerW = true;
+            setTimeout(() => {
+              addCells(boardsize);
+              this.bannerW = false;
+            }, 3000);
+          } else if(gameData.data.data.playerTwo === gameData.data.data.user.userName) {
+            turnOImage.visible = false;
+            turnXImage.visible = true;
+            removeCells();
+            showPlayerOneWin();
+            this.bannerL = true;
+            setTimeout(() => {
+              addCells(boardsize);
+              this.bannerL = false;
+            }, 3000);
+          }
+
+        }
+        if ( resp !== 0) {
+          if(gameData.data.data.playerOne === gameData.data.data.user.userName) {
+            turnOImage.visible = false;
+            turnXImage.visible = true;
+            removeCells();
+            showPlayerTwoWin();
+            this.bannerL = true;
+            setTimeout(() => {
+              addCells(boardsize);
+              this.bannerL = false;
+            }, 3000);
+          } else if(gameData.data.data.playerTwo === gameData.data.data.user.userName) {
+            turnOImage.visible = false;
+            turnXImage.visible = true;
+            removeCells();
+            showPlayerTwoWin();
+            this.bannerW = true;
+            setTimeout(() => {
+              addCells(boardsize);
+              this.bannerW = false;
+            }, 3000);
+          }
+        }
+        console.warn(response, resp, r)
+      })
+
+      this.connection.on('matchstart', (gameId, stateId, plTurn) => {
+        console.log(gameId, stateId, plTurn)
+      } )
       this.connection.on('ongamecreate', (errorCode, errorMessage) => {
         console.warn(errorCode, errorMessage);
         this.ref.detectChanges();
@@ -88,6 +236,8 @@ export class BoardComponent implements OnInit {
       score = {
         player1: 0,
         player2: 0,
+        First: 'X',
+        Second: 'O'
       };
 
     let widthX = 600;
@@ -148,8 +298,15 @@ export class BoardComponent implements OnInit {
     scoreLine.alpha = 0.3;
 
 
-    console.log(gameData.data.data.playerOne)
-    let pl1 = new Text(gameData.data.data.playerOne + ':', style1)
+        let showF = new Text(gameData.data.data.user.userName + ', You are playing as ' + score.First, style1);
+        gameWrapper.addChild(showF);
+        showF.position.set(100, 20);
+
+        let showS = new Text(gameData.data.data.user.userName + ', You are playing as ' + score.Second, style1);
+        gameWrapper.addChild(showS);
+        showS.position.set(100, 20);
+
+    let pl1 = new Text('Player X:', style1)
     gameWrapper.addChild(pl1);
     pl1.position.set(100, 70);
 
@@ -157,7 +314,7 @@ export class BoardComponent implements OnInit {
     gameWrapper.addChild(playerOneScoreText);
     playerOneScoreText.position.set(210, 69);
 
-    let pl2 = new Text(gameData.data.data.playerTwo + ':', style1)
+    let pl2 = new Text('Player O:', style1)
     gameWrapper.addChild(pl2);
     pl2.position.set(100, 110);
 
@@ -167,12 +324,10 @@ export class BoardComponent implements OnInit {
 
     let currentTurnText = new Text('Turn:', style1);
     gameWrapper.addChild(currentTurnText);
-
     currentTurnText.position.set(300, 110);
 
     let turnXImage: Sprite = Sprite.from('assets/images/X.png');
     currentTurnText.addChild(turnXImage);
-
     turnXImage.scale.set(0.3);
     turnXImage.position.set(70, 3);
 
@@ -213,19 +368,17 @@ export class BoardComponent implements OnInit {
         cell.addChild(bg);
         cell.x = (i % Math.sqrt(boardsize)) * (squareSize + 5);
         cell.y = Math.floor(i / Math.sqrt(boardsize)) * (squareSize + 5);
-        
         cell.interactive = true;
         cell.on('click', () => {
           addValue(cell);
         });
         }
-    }; // [ [x,0,x], [xox], [o,o,o] ]
+    }; 
 
 
     const xxx = (boardSize, gameCell) => {
       let index = Math.sqrt(boardSize);
 
-      console.log('index: ' + index)
       let currentCell = 0;
       for(let r = 0; r <index; r++ ){
         for(let c = 0; c < index; c++){
@@ -354,10 +507,11 @@ export class BoardComponent implements OnInit {
         }
       }
 
-      var cell = gameField.getChildAt(childIndex);
+      let cell = gameField.getChildAt(childIndex);
       if(cell.isFilled){
         return;
       }
+
 
       let x: Sprite = Sprite.from(`assets/images/${value}.png`);
       x.width = squareSize;
@@ -365,14 +519,26 @@ export class BoardComponent implements OnInit {
       x.position.x = squareSize / 10;
       x.position.y = squareSize / 10;
       cell.addChild(x);
-      turnX = !turnX;
+      // turnX = !turnX;
+      cell.isFilled = true;
+      cell.value = value;
+
+      let o: Sprite = Sprite.from(`assets/images/${value}.png`);
+      o.width = squareSize;
+      o.height = squareSize;
+      o.position.x = squareSize / 10;
+      o.position.y = squareSize / 10;
+      cell.addChild(o);
+      // turnX = !turnX;
       cell.isFilled = true;
       cell.value = value;
     }
+
     
     let addValue = (cell) => {
-      console.log(cell, cell.name)
-      if (turnX && !cell.isFilled) {
+      if (turnX && !this.clicked && !cell.isFilled) {
+        // turnXImage.visible;
+        // !turnOImage.visible;
         let x: Sprite = Sprite.from('assets/images/X.png');
         x.width = squareSize;
         x.height = squareSize;
@@ -382,9 +548,12 @@ export class BoardComponent implements OnInit {
         turnX = !turnX;
         cell.isFilled = true;
         cell.value = 'x';
+        cell.interactive = false;
       }
 
-      if (!turnX && !cell.isFilled) {
+      if (!turnX && !this.clicked && !cell.isFilled) {
+        // turnOImage.visible;
+        // !turnXImage.visible;
         let o: Sprite = Sprite.from('assets/images/O.png');
         o.width = squareSize;
         o.height = squareSize;
@@ -394,129 +563,35 @@ export class BoardComponent implements OnInit {
         turnX = !turnX;
         cell.isFilled = true;
         cell.value = 'o';
+        cell.interactive = false;
       }
       let index = Number.parseInt(cell.name);
       let {row, column} = xxx(boardsize, index);
-      console.log(row, column);
       this.sendMove(row, column);
-      checkWin();
-    };
-
-    let seriesWinner = () => {
-      if (score.player1 === scoretoplay) {
-        gameWrapper.visible = false;
-        newScene.visible = true;
-        gameEndScene.visible = false;
-        gameField.visible = false;
-        Winner.text = 'X';
-        this.bannerW = true;
-      } else if (score.player2 === scoretoplay) {
-        gameWrapper.visible = false;
-        newScene.visible = true;
-        gameEndScene.visible = false;
-        gameField.visible = false;
-        Winner.text = 'O';
-        this.bannerL = true;
-      }
-    };
-
-    let checkWin = () => {
-      changeTurnImage();
+      // changeTurnImage();
       incrementCounter();
-      if (check_X_win(gameField.children)) {
-        resetGame();
-      } else if (check_Y_win(gameField.children)) {
-        resetGame();
-      } else {
-        draw();
-      }
     };
 
-    let check_X_win = (arr: any): boolean => {
-      let xContainers = arr.filter((item: any) => item.value == 'x');
-      let isWin = false;
-      for (let i = 0; i < xContainers.length; i++) {
-        if (!xPositions.includes(arr.indexOf(xContainers[i]))) {
-          xPositions.push(arr.indexOf(xContainers[i]));
-        }
+    let checkMove = (response, row, column, value, cell) => {
+      if(response === 1) {
+        drawMove(row, column, value, boardsize);
+      } else if( response === -1) {
+        cell.interactive = false;
+        console.log('ops turn')
       }
-
-      for (let i = 0; i < winningPos.length; i++) {
-        let count = 0;
-        for (let j = 0; j < winningPos[i].length; j++) {
-          if (xPositions.includes(winningPos[i][j])) {
-            count++;
-          }
-          if (count == numberToWin) {
-            isWin = true;
-            this.gameWinner = true;
-            this.bannerW = true;
-
-            // clearGameField();
-            // seriesWinner();
-            setTimeout(() => {
-              this.bannerW = false;
-              clearGameField();
-              seriesWinner();
-            }, 1500);
-            showPlayerOneWin();
-          }
-        }
-      }
-
-      return isWin;
-    };
-
-    let check_Y_win = (arr: any): boolean => {
-      let oContainers = arr.filter((item: any) => item.value == 'o');
-      let isWin = false;
-      for (let i = 0; i < oContainers.length; i++) {
-        if (!oPositions.includes(arr.indexOf(oContainers[i]))) {
-          oPositions.push(arr.indexOf(oContainers[i]));
-        }
-      }
-
-      for (let i = 0; i < winningPos.length; i++) {
-        let count = 0;
-        for (let j = 0; j < winningPos[i].length; j++) {
-          if (oPositions.includes(winningPos[i][j])) {
-            count++;
-          }
-          if (count == numberToWin) {
-            isWin = true;
-            this.bannerL = true;
-            this.gameWinner = true;
-            // clearGameField();
-            // seriesWinner();
-
-            setTimeout(() => {
-              this.bannerL = false;
-              clearGameField();
-              seriesWinner();
-            }, 1500);
-            showPlayerTwoWin();
-          }
-        }
-      }
-
-      return isWin;
-    };
-
-    let draw = () => {
-      if (moveCounter >= boardsize && !this.gameWinner) {
-        this.bannerD = true;
-        resultText.text = 'It`s a tie';
-        resultText.x = 270;
-        setTimeout(() => {
-          this.bannerD = false;
-          clearGameField();
-        }, 1500);
-        resetGame();
-      }
-    };
+    }
 
     let changeTurnImage = () => {
-      if (moveCounter < boardsize) {
+      // if (this.clicked) {
+      //   turnXImage.visible;
+      //   turnOImage.visible = !turnOImage.visible
+      // }
+      // if(this.clicked) {
+      //   turnOImage.visible;
+      //   turnXImage.visible = !turnXImage.visible;
+      // }
+
+      if (this.clicked) {
         turnXImage.visible = !turnXImage.visible;
         turnOImage.visible = !turnOImage.visible;
       }
@@ -536,14 +611,16 @@ export class BoardComponent implements OnInit {
     };
 
     let resetGame = () => {
+
       playerOne = '';
       moveCounter = 0;
       gameWrapper.visible = false;
-      gameEndScene.visible = true;
+      // gameEndScene.visible = true;
       xPositions = [];
       oPositions = [];
       removeCells();
     };
+
 
     let showPlayerOneWin = () => {
       playerOneScoreText.text = ++score.player1;
@@ -567,16 +644,15 @@ export class BoardComponent implements OnInit {
       this.connection.invoke(
         
         'MakeMove',  {
-          
           GameId: gameData.data.data.activeGame,
           Row: row,
           Column: column
         }
         ).catch(err => console.error(err));
-        console.log(row, column);
         
   });
   }
+
 
   public get tables() {
     return gameData.data.data.gameTables;

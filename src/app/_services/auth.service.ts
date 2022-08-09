@@ -8,7 +8,13 @@ const httpOptions = {
   headers: new HttpHeaders({ 'Content-Type': 'application/json',
   "Access-Control-Allow-Origin": "*",
 }) 
-  // ,responseType: 'text' as 'json'
+};
+
+const httpOptions1 = {
+  headers: new HttpHeaders({ 'Content-Type': 'application/json',
+  "Access-Control-Allow-Origin": "*",
+}) 
+  ,responseType: 'text' as 'json'
 };
 
 
@@ -33,7 +39,7 @@ export class AuthService {
       lastName,
       userName,
       password
-    },httpOptions);
+    },httpOptions1);
   }
 
 }
