@@ -49,11 +49,13 @@ button {
 
 
 .card {
+    display: flex;
     width: 18rem;
     flex-direction: row;
     border-radius: 20px;
-    margin:50px 0 50px 0;
-    left: 35%;
+    margin:auto;
+    margin-left: 25%;
+    margin-top: 60px;
     background-color: #2c616100;
 }
 
@@ -69,6 +71,7 @@ button {
 .card-body {
     min-width: 250px;
     padding: 40px;
+    text-align: center;
 }
 
 
@@ -78,15 +81,15 @@ button {
     color: #fff;
     border: 2px solid #c94b4bc6;
     display: flex;
-    margin: 10px 0 10px 0;
+    margin: 10px auto;
     padding: 5px 3px;
     border-radius: 5px;
 }
 
 
-.btn {
+/* .btn {
     margin-left: 0px;
-}
+} */
 
 .lobby {
     height: 93.2vh;
@@ -100,15 +103,19 @@ button {
     border: 1px solid #c94b4bc6;
     border-radius: 10px;
     padding: 10px 0 10px 0;
+    margin: auto;
     margin-bottom: 20px;
     display: flex;
     flex-direction: row;
+    max-width: 700px;
 
 }
 
 .match-info {
     display: flex;
-    padding: 0 20px 0 50px;
+    flex-direction: row;
+    margin: auto;
+    margin-left: 20px;
 }
 
 .match-info h3 {
@@ -120,6 +127,11 @@ button {
     line-height: 2;
 }
 
+
+.join {
+    display: flex;
+    margin-right: 20px;
+}
 
 .join button {
     background-color: #000034; 
@@ -138,12 +150,16 @@ button {
 }
 
 
+.matchList {
+    display: flex;
+    flex-direction: column;
+    margin: auto;
+    margin-top: 15px;
+    padding: 6px;
+}
+
 
 @media (max-width: 991px) {
-
-    .card {
-        left: 15%;
-    }
 
     .match-info {
         padding: 0 20px 0 20px;
@@ -170,7 +186,7 @@ button {
 
     .card {
         width: 16rem;
-        left: 5%;
+        flex-direction: column;
     }
 
 
@@ -192,9 +208,12 @@ button {
 
 @media (max-width: 545px) {
 
-    .card {
-        width: 14rem;
-        height: 14rem;
+    .card-body {
+        display: flex;
+        flex-direction: column;
+        margin: auto;
+        min-width: auto;
+        width: 225px;
     }
 
     .match-info h3 {
@@ -207,19 +226,14 @@ button {
 @media (max-width: 500px) {
 
     .card {
-        left: 26%;
+        margin: auto;
         display: flex;
         flex-direction: column;
-        width: 12rem;
-        height: 12rem;
+        margin-top: 60px;
     }
 
     .card-body {
-        padding: 25px;
-    }
-
-    .matchList {
-        margin-top: 250px;
+        padding: 15px;
     }
 
     .match-info {
@@ -255,13 +269,39 @@ button {
     .join {
         padding-top: 10px;
         text-align: center;
+        margin: auto;
     }
     .join button {
         font-size: 12px;
-        padding: 5px 10px;
+        padding: 5px 25px;
     }
 
 }
+
+
+@media (min-width: 771px) {
+    .card {
+        margin-left: 17%;
+    }
+ }
+
+@media (min-width: 991px) {
+    .card {
+        margin-left: 25%;
+    }
+ }
+
+@media (min-width: 1200px) {
+    .card {
+        margin-left: 30%;
+    }
+ }
+
+
+
+
+
+
 
 .select.ng-invalid.ng-touched .ng-select-container{
     border-color: red;

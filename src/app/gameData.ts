@@ -11,6 +11,7 @@ class GameData {
         },
         gameTables: [],
         activeGame: 0,
+        isDone: false,
         playerOne: null,
         playerTwo: null,
         winningPositions: {

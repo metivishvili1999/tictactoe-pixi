@@ -1,10 +1,9 @@
 import { Component, Injectable, OnInit } from '@angular/core';
 import { UserService } from '../_services/user.service';
 import { FormGroup, FormBuilder, FormControl, Validators } from '@angular/forms';
-import * as signalR from '@microsoft/signalr';
 import { TokenStorageService } from '../_services/token-storage.service';
-import * as gameData from '../gameData';
 import { Router } from '@angular/router';
+import * as gameData from '../gameData';
 
 @Component({
   selector: 'app-home',
@@ -15,10 +14,12 @@ import { Router } from '@angular/router';
 
 export class HomeComponent implements OnInit {
   content?: string;
-  isLoggedIn = false;
+  isLoggedIn = true;
 
   isSubmitted!: boolean;
   sesId: any;
+
+  isD = gameData.data.data.isDone;
 
   toggle() {
     this.isSubmitted = !this.isSubmitted;

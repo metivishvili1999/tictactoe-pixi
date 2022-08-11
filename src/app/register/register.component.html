@@ -97,15 +97,15 @@
         <div class="form-group">
           <button>Sign Up</button>
         </div>
-        <div class="alert alert-warning" *ngIf="f.submitted && isSignUpFailed">
-          Signup failed!<br />{{ errorMessage }}
+        <div class="alert-warning" *ngIf="f.submitted && !isSuccessful">
+          Failed!<br />{{ errorMessage }}
         </div>
       </form>
       <div class="alert alert-success" *ngIf="isSuccessful">
         <div class="succ">
           <h1>Your registration is successful!</h1>
           <div class="timer">
-            <button >
+            <button routerLink="/login">
               Redirect to login
             </button>
           </div>

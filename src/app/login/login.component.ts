@@ -30,17 +30,19 @@ export class LoginComponent implements OnInit {
     const { userName, password, sessionId } = this.form;
     this.authService.login(userName, password, sessionId).subscribe ({
       next: data => {
-        console.log(data)
-        this.isLoginFailed = false;
-        this.isLoggedIn = true;
-        gameData.data.data.user.sessionId = data.sessionId;
-        gameData.data.data.user.userName = userName;
-        this.route.navigateByUrl('/home');
-      },
-      error: err => {
-        console.log(err)
-        this.errorMessage = err.error.message;
-        this.isLoginFailed = true;
+        console.log(data )
+        if(data.errorCode === -1) {
+          this.isLoggedIn = false;
+          this.isLoginFailed = true;
+          this.errorMessage = 'Username or password is incorrect'
+        } else if(data.errorCode === 1) {
+          this.isLoggedIn = true;
+          this.isLoginFailed = false;
+          gameData.data.data.user.sessionId = data.sessionId;
+          gameData.data.data.user.userName = userName;
+          gameData.data.data.isDone = true;
+          this.route.navigateByUrl('/home');
+        }
       }
     });
   }

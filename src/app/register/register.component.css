@@ -131,6 +131,14 @@ input {
     object-fit: cover;
 }
 
+.alert-warning {
+    width: 50%;
+    position: relative;
+    padding: 4px;
+    border: 1px solid transparent;
+    border-radius: 30px;
+}
+
 .alert {
     height: 100%;
     position: relative;

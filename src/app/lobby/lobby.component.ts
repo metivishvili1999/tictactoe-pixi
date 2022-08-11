@@ -24,6 +24,10 @@ export class LobbyComponent implements OnInit {
   content?: string;
   isSubmitted!: boolean;
 
+  errorMessage = '';
+  submitted = true;
+  joinDisabled = true;
+
   boardSize = [
     { id: 3, name: '3x3', cellNumber: 9 },
     { id: 4, name: '4x4', cellNumber: 16 },
@@ -41,6 +45,7 @@ export class LobbyComponent implements OnInit {
 
   public connection: signalR.HubConnection;
   public isConnected: any;
+  gameState;
 
   constructor(
     private route: Router,
@@ -64,7 +69,6 @@ export class LobbyComponent implements OnInit {
       this.isConnected = this.connection
         .start()
         .then(function () {
-          console.log('SignalR Connected!');
         })
         .catch(function (err) {
           return console.error(err.toString());
@@ -72,27 +76,29 @@ export class LobbyComponent implements OnInit {
 
       this.connection.on('getallgame', (response) => {
         gameData.data.data.gameTables = response;
-        // let game = response.filter((player) => {
-        //   player.playerOne.userName == gameData.data.data.user.userName ||
-        //     player.playerTwo.userName == gameData.data.data.user.userName;
-        // })[0];
-        // gameData.data.data.activeGame = game ? game.id : 0;
+        response.filter((player) => {
+          if (
+            player.playerOne.userName == gameData.data.data.user.userName ||
+            player.playerTwo.userName == gameData.data.data.user.userName
+          ) {
+            this.gameState = player.stateId;
+          }
+        })[0];
         gameData.data.setboardSize(response[0].boardSize);
         gameData.data.setScore(response[0].targetScore);
-        console.warn(response);
         this.ref.detectChanges();
       });
-      this.connection.on('nextturn', (response,message, row, column, value) => {
-        // console.warn(response,message, row, column, value);
-      });
+      this.connection.on(
+        'nextturn',
+        (response, message, row, column, value) => {}
+      );
 
       this.connection.on('ongamecreate', (errorCode, errorMessage) => {
-        console.warn(errorCode, errorMessage);
+        // console.warn(errorCode, errorMessage);
         this.ref.detectChanges();
       });
     }
   }
-
 
   sendData() {
     this.isConnected.then(() => {
@@ -102,25 +108,34 @@ export class LobbyComponent implements OnInit {
           ScoreTarget: gameData.data.data.scoreToPlay,
         })
         .catch((err) => console.error(err));
+        if(gameData.data.data.boardSize > 0 && gameData.data.data.scoreToPlay > 0) {
+          this.route.navigateByUrl('/board')
+        } else {
+          this.errorMessage = 'Both parameters are required';
+          this.submitted = false;
+        }
     });
   }
 
   joinGame(id) {
     this.isConnected.then(() => {
-      this.connection
+      if(this.gameState !== 2) {
+        this.connection
         .invoke('JoinToGame', {
           GameId: id,
-          
         })
         .then(() => {
           gameData.data.data.activeGame = id;
-          console.log(id);
         })
+        this.route.navigateByUrl('/board')
         .catch((err) => console.error(err));
+      }
+      if (this.gameState === 2) {
+        this.joinDisabled = false;
+        console.log('game is full')
+      }
     });
   }
-
-
 
   public get tables() {
     return gameData.data.data.gameTables;
@@ -145,5 +160,3 @@ export class LobbyComponent implements OnInit {
     }
   }
 }
-
-

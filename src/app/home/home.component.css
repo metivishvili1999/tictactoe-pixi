@@ -3,23 +3,16 @@
 
 }
 
-.welcome {
+/* .welcome {
     justify-content: center;
     text-align: center;
     align-items: center;
     margin-top: 30px;
-}
+} */
 
 h1, h3 {
     color: #FFF;
     padding: 5px;
-}
-
-.auth {
-    justify-content: center;
-    text-align: center;
-    align-items: center;
-    padding: 20px;
 }
 
 button {
@@ -36,20 +29,72 @@ button {
     border-radius: 20px;
 }
 
-
-.options select{
-    width: 120px;
-    background-color: #fff;
-    display: flex;
-    margin: 10px 0 10px 0;
-    border: 2px solid grey;
-    border-radius: 5px;
-}
-
-
 .btn {
     margin-left: 0px;
 }
+
+
+/* .notlogged {
+    margin-top: 30%;
+    background-color: rgba(255, 255, 255, 0.058);
+    box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+    border-radius: 15px;
+    display: flex;
+    width: 600px;
+}
+
+.notlogged img {
+    border-radius: 15px;
+    width: 300px;
+}
+
+.notlogged h1 {
+    padding: 10px;
+    margin-top: 15px;
+    text-align: center;
+    align-items: center;
+} */
+
+
+/* .notlogged {
+    margin-top: 30%;
+    background-color: rgba(255, 255, 255, 0.058);
+    box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+    border-radius: 15px;
+    display: flex;
+    width: 600px;
+}
+
+.notlogged img {
+    border-radius: 15px;
+    width: 300px;
+}
+
+.notlogged h1 {
+    padding: 10px;
+    margin-top: 80px;
+    text-align: center;
+    align-items: center;
+}
+
+
+
+.welcome {
+    margin-left: 10px;
+}
+
+.welcome button {
+    background-color: #000034;
+    color: #fff;
+    width: 80px;
+    padding: 7px;
+    border: none;
+}
+
+.welcome button:hover {
+    color: #df7005;
+    background-color: #000034e6; 
+} */
 
 
 .lobby {
@@ -92,6 +137,28 @@ button {
 }
 
 
+.welc {
+    margin-left: 10px;
+}
+
+.welc button {
+    background-color: #000034;
+    color: #fff;
+    width: 80px;
+    padding: 7px;
+    border: none;
+}
+
+.welc button:hover {
+    color: #df7005;
+    background-color: #000034e6; 
+}
+
+.but {
+    width: 190px;
+    margin: auto;
+}
+
 @media (max-width: 767px) {
     .lobby {
         width: auto;
@@ -104,7 +171,7 @@ button {
 
     .lobby h1 {
         font-size: 18px;
-        padding: 10px;
+        padding:6px;
         margin-top: 50px;
         text-align: center;
         align-items: center;
@@ -134,4 +201,7 @@ button {
         margin-left: 33%;
     }
 
+    .but {
+        padding-bottom: 20px;
+    }
 }

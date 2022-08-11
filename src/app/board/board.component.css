@@ -10,10 +10,11 @@
 } */
 
 .gif {
+    display: flex;
     position:absolute;
     width: 300px;
     height: 300px;  
-    left: 150px;
+    /* left: 150px; */
     top: 35%;
-
+    margin: auto;
 }

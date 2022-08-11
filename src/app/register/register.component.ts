@@ -29,15 +29,16 @@ export class RegisterComponent implements OnInit {
     const { firstName, lastName, userName, password } = this.form;
     console.log(firstName, lastName, userName, password);
     this.authService.register(firstName, lastName, userName, password).subscribe (
-       data => {
+      data => {
         console.log(data);
-        this.isSuccessful = true;
-        this.isSignUpFailed = false;
-      },
-       err => {
-        console.log(err)
-        this.errorMessage = err.error.message;
-        this.isSignUpFailed = true;
+        if(data.length > 6) {
+          this.isSignUpFailed = true;
+          this.isSuccessful = false;
+          this.errorMessage = 'Username already exist!'
+        } else {
+          this.isSignUpFailed = false;
+          this.isSuccessful = true;
+        }
       }
     )
   }
