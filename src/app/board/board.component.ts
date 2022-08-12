@@ -5,12 +5,10 @@ import * as gameData from '../gameData';
 import { Router } from '@angular/router';
 import * as signalR from '@microsoft/signalr';
 import { FormGroup } from '@angular/forms';
-import { UsernamesService } from './usernames.service';
 
 @Component({
   selector: 'app-board',
   templateUrl: './board.component.html',
-  providers: [UsernamesService],
   styleUrls: ['./board.component.css'],
 })
 export class BoardComponent implements OnInit {
@@ -32,11 +30,7 @@ export class BoardComponent implements OnInit {
   public isConnected: any;
   gameData: any;
 
-  constructor(
-    private route: Router,
-    private ref: ChangeDetectorRef,
-    private Usernameservice: UsernamesService
-  ) {}
+  constructor(private route: Router, private ref: ChangeDetectorRef) {}
 
   ngOnInit(): void {
     this.connection = new signalR.HubConnectionBuilder()
@@ -49,8 +43,7 @@ export class BoardComponent implements OnInit {
     if (gameData.data.data.user.sessionId != null) {
       this.isConnected = this.connection
         .start()
-        .then(function () {
-        })
+        .then(function () {})
         .catch(function (err) {
           return console.error(err.toString());
         });
@@ -63,10 +56,6 @@ export class BoardComponent implements OnInit {
             player.playerTwo.userName == gameData.data.data.user.userName
           ) {
             gameData.data.data.activeGame = player.id;
-            this.Usernameservice.setUsers({
-              user1: player.playerOne.userName,
-              user2: player.playerTwo.userName,
-            });
             this.gameState = player.stateId;
             gameData.data.data.playerOne = player.playerOne.userName;
             gameData.data.data.playerTwo = player.playerTwo.userName;
@@ -76,15 +65,15 @@ export class BoardComponent implements OnInit {
         gameData.data.setScore(response[0].targetScore);
 
         if (gameData.data.data.playerOne === gameData.data.data.user.userName) {
-          showS.visible = false;
+          secondPlayerName.visible = false;
         }
         if (gameData.data.data.playerTwo === gameData.data.data.user.userName) {
-          showF.visible = false;
+          firstPlayerName.visible = false;
         }
 
         setTimeout(() => {
-          showF.visible = false;
-          showS.visible = false;
+          firstPlayerName.visible = false;
+          secondPlayerName.visible = false;
         }, 8000);
         console.warn(response);
         this.ref.detectChanges();
@@ -101,20 +90,17 @@ export class BoardComponent implements OnInit {
             }
             console.warn(response, message, row, column, value);
           } else {
-            // console.log('wait for ur opponent');
           }
         }
       );
 
-      this.connection.on('gameend', (response, resp, r) => {
-        if (response === gameData.data.data.scoreToPlay) {
-          if (
-            gameData.data.data.playerOne === gameData.data.data.user.userName
-          ) {
+      this.connection.on('gameend', (firstPlayerScore, secondPlayerScore, message) => {
+        if (firstPlayerScore === gameData.data.data.scoreToPlay) {
+          if (gameData.data.data.playerOne === gameData.data.data.user.userName) {
             removeCells();
-            showPlayerOneWin();
+            updatePlayerOneScore();
             this.bannerW = true;
-            newScene3.visible = true;
+            seriesWinnerCont.visible = true;
             seriesWinnerText();
             setTimeout(() => {
               this.bannerW = false;
@@ -122,14 +108,12 @@ export class BoardComponent implements OnInit {
               this.route.navigateByUrl('/lobby');
             }, 5000);
             turnX = !turnX;
-          } else if (
-            gameData.data.data.playerTwo === gameData.data.data.user.userName
-          ) {
+          } else if (gameData.data.data.playerTwo === gameData.data.data.user.userName) {
             removeCells();
-            showPlayerOneWin();
+            updatePlayerOneScore();
             this.bannerL = true;
             seriesLoserText();
-            newScene3.visible = true;
+            seriesWinnerCont.visible = true;
             setTimeout(() => {
               deleteBoard();
               this.route.navigateByUrl('/lobby');
@@ -138,33 +122,29 @@ export class BoardComponent implements OnInit {
             turnX = !turnX;
           }
         }
-        if (resp === gameData.data.data.scoreToPlay) {
-          if (
-            gameData.data.data.playerOne === gameData.data.data.user.userName
-          ) {
+        if (secondPlayerScore === gameData.data.data.scoreToPlay) {
+          if (gameData.data.data.playerOne === gameData.data.data.user.userName) {
             removeCells();
-            showPlayerTwoWin();
+            updatePlayerTwoScore();
             this.bannerL = true;
-            newScene.visible = false;
-            newScene1.visible = false;
-            newScene2.visible = false;
-            newScene3.visible = true;
+            winnerCont.visible = false;
+            loserCont.visible = false;
+            tieCont.visible = false;
+            seriesWinnerCont.visible = true;
             seriesLoserText();
             setTimeout(() => {
               deleteBoard();
               this.route.navigateByUrl('/lobby');
             }, 5000);
             turnX = !turnX;
-          } else if (
-            gameData.data.data.playerTwo === gameData.data.data.user.userName
-          ) {
+          } else if (gameData.data.data.playerTwo === gameData.data.data.user.userName) {
             removeCells();
-            showPlayerTwoWin();
+            updatePlayerTwoScore();
             this.bannerW = true;
-            newScene.visible = false;
-            newScene1.visible = false;
-            newScene2.visible = false;
-            newScene3.visible = true;
+            winnerCont.visible = false;
+            loserCont.visible = false;
+            tieCont.visible = false;
+            seriesWinnerCont.visible = true;
             seriesWinnerText();
             setTimeout(() => {
               deleteBoard();
@@ -173,103 +153,95 @@ export class BoardComponent implements OnInit {
             turnX = !turnX;
           }
         }
-        console.warn(response, resp, r);
+        console.warn(firstPlayerScore, secondPlayerScore, message);
       });
 
       let firstpoint = 0;
       let secpoint = 0;
-      this.connection.on('matchend', (response, resp, r) => {
-        if (response > firstpoint) {
+      this.connection.on('matchend', (firstPlayerScore, secondPlayerScore, message) => {
+        if (firstPlayerScore > firstpoint) {
           firstpoint++;
-          if (
-            gameData.data.data.playerOne === gameData.data.data.user.userName
-          ) {
+          if (gameData.data.data.playerOne === gameData.data.data.user.userName) {
             turnOImage.visible = false;
             turnXImage.visible = true;
             removeCells();
-            showPlayerOneWin();
+            updatePlayerOneScore();
             this.bannerW = true;
-            newScene.visible = true;
+            winnerCont.visible = true;
             winnerText();
             setTimeout(() => {
               addCells(boardsize);
               this.bannerW = false;
-              newScene.visible = false;
+              winnerCont.visible = false;
             }, 3000);
-          } else if (
-            gameData.data.data.playerTwo === gameData.data.data.user.userName
-          ) {
+          } else if (gameData.data.data.playerTwo === gameData.data.data.user.userName) {
             turnOImage.visible = false;
             turnXImage.visible = true;
             removeCells();
-            showPlayerOneWin();
+            updatePlayerOneScore();
             this.bannerL = true;
-            newScene1.visible = true
+            loserCont.visible = true;
             loserText();
             setTimeout(() => {
               addCells(boardsize);
               this.bannerL = false;
-              newScene1.visible = false;
+              loserCont.visible = false;
             }, 3000);
           }
         }
-        if (resp > secpoint) {
+        if (secondPlayerScore > secpoint) {
           secpoint++;
-          if (
-            gameData.data.data.playerOne === gameData.data.data.user.userName
-          ) {
+          if (gameData.data.data.playerOne === gameData.data.data.user.userName) {
             turnOImage.visible = false;
             turnXImage.visible = true;
             removeCells();
-            showPlayerTwoWin();
+            updatePlayerTwoScore();
             this.bannerL = true;
-            newScene1.visible = true
+            loserCont.visible = true;
             loserText();
             setTimeout(() => {
               addCells(boardsize);
               this.bannerL = false;
-              newScene1.visible = false;
+              loserCont.visible = false;
             }, 3000);
-          } else if (
+          } else if (gameData.data.data.playerTwo === gameData.data.data.user.userName) {
+            turnOImage.visible = false;
+            turnXImage.visible = true;
+            removeCells();
+            updatePlayerTwoScore();
+            this.bannerW = true;
+            winnerCont.visible = true;
+            winnerText();
+            setTimeout(() => {
+              addCells(boardsize);
+              this.bannerW = false;
+              winnerCont.visible = false;
+            }, 3000);
+          }
+        }
+        // THAT MEANS TIE
+        if (message.length === 11) {
+          if (
+            gameData.data.data.playerOne === gameData.data.data.user.userName ||
             gameData.data.data.playerTwo === gameData.data.data.user.userName
           ) {
             turnOImage.visible = false;
             turnXImage.visible = true;
             removeCells();
-            showPlayerTwoWin();
-            this.bannerW = true;
-            newScene.visible = true;
-            winnerText();
-            setTimeout(() => {
-              addCells(boardsize);
-              this.bannerW = false;
-              newScene.visible = false;
-            }, 3000);
-          }
-        }
-
-        if (r.length === 11) {
-          if(gameData.data.data.playerOne === gameData.data.data.user.userName || 
-             gameData.data.data.playerTwo === gameData.data.data.user.userName) {
-            turnOImage.visible = false;
-            turnXImage.visible = true;
-            removeCells();
-            tie();
             this.bannerD = true;
-            newScene2.visible = true;
+            tieCont.visible = true;
             tieText();
             setTimeout(() => {
               addCells(boardsize);
               this.bannerD = false;
-              newScene2.visible = false;
+              tieCont.visible = false;
             }, 3000);
           }
         }
-        console.warn(response, resp, r);
+        console.warn(firstPlayerScore, secondPlayerScore, message);
       });
 
       this.connection.on('matchstart', (gameId, stateId, plTurn) => {
-        // console.log(gameId, stateId, plTurn);
       });
       this.connection.on('ongamecreate', (errorCode, errorMessage) => {
         console.warn(errorCode, errorMessage);
@@ -281,12 +253,10 @@ export class BoardComponent implements OnInit {
       Container = pixi.Container,
       Graphics = pixi.Graphics,
       Text = pixi.Text,
-      TextStyle = pixi.TextStyle,
-      Texture = pixi.Texture;
+      TextStyle = pixi.TextStyle;
 
-    let playerOne,
+    let
       turnX = true,
-      moveCounter = 0,
       score = {
         player1: 0,
         player2: 0,
@@ -305,16 +275,6 @@ export class BoardComponent implements OnInit {
 
     document.body.appendChild(app.view);
 
-    let loadingScreen = new Container();
-    app.stage.addChild(loadingScreen);
-
-    let loadingBg = new pixi.Sprite(Texture.WHITE);
-    loadingScreen.addChild(loadingBg);
-
-    setTimeout(() => {
-      loadingScreen.visible = false;
-    }, 500);
-
     let style = new TextStyle({
       fontStyle: 'italic',
       fontSize: 36,
@@ -328,18 +288,38 @@ export class BoardComponent implements OnInit {
       fill: 'white',
     });
 
-    let buttonStyle = new TextStyle({
-      fontSize: 32,
-      fill: '#b9b4b4',
-    });
 
-    /////////////////////////////////////////////////
 
-    let gameWrapper = new Container();
+    /*---------- CONTAINERS ----------*/
+
+    let gameWrapper = new Container(); // INFO,GAMEBOARD CONT
     app.stage.addChild(gameWrapper);
-
     gameWrapper.visible = false;
 
+    let gameField: any = new Container(); //BOARD CONT
+    gameWrapper.addChild(gameField);
+    gameField.position.set(93, 150);
+
+    let winnerCont = new Container();
+    app.stage.addChild(winnerCont);
+    winnerCont.visible = false;
+
+    let loserCont = new Container();
+    app.stage.addChild(loserCont);
+    loserCont.visible = false;
+
+    let tieCont = new Container();
+    app.stage.addChild(tieCont);
+    tieCont.visible = false;
+
+    let seriesWinnerCont = new Container();
+    app.stage.addChild(seriesWinnerCont);
+    seriesWinnerCont.visible = false;
+
+
+
+
+    /* ---------- GAME INFO ---------- */
     let scoreText = new Text('Target score:', style1);
     gameWrapper.addChild(scoreText);
     scoreText.position.set(300, 70);
@@ -351,31 +331,31 @@ export class BoardComponent implements OnInit {
     scoreLine.lineTo(515, 60);
     scoreLine.alpha = 0.3;
 
-    let showF = new Text(
+    let firstPlayerName = new Text(
       gameData.data.data.user.userName + ', You are playing as ' + score.First,
       style1
     );
-    gameWrapper.addChild(showF);
-    showF.position.set(100, 20);
+    gameWrapper.addChild(firstPlayerName);
+    firstPlayerName.position.set(100, 20);
 
-    let showS = new Text(
+    let secondPlayerName = new Text(
       gameData.data.data.user.userName + ', You are playing as ' + score.Second,
       style1
     );
-    gameWrapper.addChild(showS);
-    showS.position.set(100, 20);
+    gameWrapper.addChild(secondPlayerName);
+    secondPlayerName.position.set(100, 20);
 
-    let pl1 = new Text('Player X:', style1);
-    gameWrapper.addChild(pl1);
-    pl1.position.set(100, 70);
+    let player1 = new Text('Player X:', style1);
+    gameWrapper.addChild(player1);
+    player1.position.set(100, 70);
 
     let playerOneScoreText = new Text(score.player1, style1);
     gameWrapper.addChild(playerOneScoreText);
     playerOneScoreText.position.set(210, 69);
 
-    let pl2 = new Text('Player O:', style1);
-    gameWrapper.addChild(pl2);
-    pl2.position.set(100, 110);
+    let player2 = new Text('Player O:', style1);
+    gameWrapper.addChild(player2);
+    player2.position.set(100, 110);
 
     let playerTwoScoreText = new Text(score.player2, style1);
     gameWrapper.addChild(playerTwoScoreText);
@@ -396,13 +376,9 @@ export class BoardComponent implements OnInit {
     turnOImage.position.set(70, 3);
     turnOImage.visible = false;
 
-    let gameField: any = new Container();
-    gameWrapper.addChild(gameField);
-    gameField.position.set(93, 150);
 
     let scoretoplay = gameData.data.data.scoreToPlay;
     let boardsize = gameData.data.data.boardSize;
-    let numberToWin = Math.sqrt(boardsize);
     let squareSize = 400 / Math.sqrt(boardsize);
 
     let targetScore = (scoretoplay) => {
@@ -423,6 +399,7 @@ export class BoardComponent implements OnInit {
         bg.width = squareSize;
         bg.height = squareSize;
         cell.addChild(bg);
+        // THAT CREATES  ANY BOARDSIZE IN 400PX WITH 5PX MARGINS BETWEEN CELLS
         cell.x = (i % Math.sqrt(boardsize)) * (squareSize + 5);
         cell.y = Math.floor(i / Math.sqrt(boardsize)) * (squareSize + 5);
         cell.interactive = true;
@@ -432,7 +409,7 @@ export class BoardComponent implements OnInit {
       }
     };
 
-    const xxx = (boardSize, gameCell) => {
+    const getCell = (boardSize, gameCell) => {
       let index = Math.sqrt(boardSize);
 
       let currentCell = 0;
@@ -456,106 +433,42 @@ export class BoardComponent implements OnInit {
       }
     };
 
-    /////////////////// Match Winner Container /////////////////////////
-    let gameEndScene = new Container();
-    app.stage.addChild(gameEndScene);
-    gameEndScene.visible = false;
-
+    // CREATING BOARD WITH CHOSEN PARAMETERS
     addCells(boardsize);
     targetScore(scoretoplay);
     gameWrapper.visible = true;
 
-    let resultText = new Text('', style);
-    gameEndScene.addChild(resultText);
-    resultText.position.set(180, 150);
-
-    let continueButton = new Text('CONTINUE', buttonStyle);
-    continueButton.position.set(220, 220);
-    continueButton.interactive = true;
-    continueButton.buttonMode = true;
-    continueButton
-      .on('click', () => {
-        gameEndScene.visible = false;
-        addCells(boardsize);
-        this.bannerD = false;
-        this.bannerL = false;
-        this.bannerW = false;
-        gameWrapper.visible = true;
-      })
-      .on('pointerdown', (event) => onClick(continueButton))
-      .on('pointerover', (event) => onPointerOver(continueButton))
-      .on('pointerout', (event) => onPointerOut(continueButton));
-    gameEndScene.addChild(continueButton);
-
-    ////////////////// Series Winner Container //////////////////////////////////
-    let newScene = new Container();
-    app.stage.addChild(newScene);
-    newScene.visible = false;
-
-    let newScene1 = new Container();
-    app.stage.addChild(newScene1);
-    newScene1.visible = false;
-
-    let newScene2 = new Container();
-    app.stage.addChild(newScene2);
-    newScene2.visible = false;
-
-    let newScene3 = new Container();
-    app.stage.addChild(newScene3);
-    newScene3.visible = false;
-
 
     let winnerText = () => {
       let winner = new Text('You won this match', style);
-      newScene.addChild(winner);
+      winnerCont.addChild(winner);
       winner.position.set(100, 400);
-    }
-
+    };
 
     let loserText = () => {
       let loser = new Text('You Lose this match', style);
-      newScene1.addChild(loser);
+      loserCont.addChild(loser);
       loser.position.set(100, 400);
-    }
+    };
 
     let tieText = () => {
       let tie = new Text('Tie game', style);
-      newScene2.addChild(tie);
+      tieCont.addChild(tie);
       tie.position.set(200, 400);
-    }
+    };
 
     let seriesWinnerText = () => {
       let swinner = new Text('You won this Series', style);
-      newScene3.addChild(swinner);
+      seriesWinnerCont.addChild(swinner);
       swinner.position.set(100, 400);
-    }
+    };
 
     let seriesLoserText = () => {
       let sloser = new Text('You Lose this Series', style);
-      newScene3.addChild(sloser);
+      seriesWinnerCont.addChild(sloser);
       sloser.position.set(100, 400);
-    }
+    };
 
-    let winningPos;
-    let numb = boardsize;
-
-    if (numb === 9) {
-      winningPos = gameData.data.data.winningPositions.matrix3;
-    } else if (numb === 16) {
-      winningPos = gameData.data.data.winningPositions.matrix4;
-    } else if (numb === 25) {
-      winningPos = gameData.data.data.winningPositions.matrix5;
-    }
-
-    function onClick(object) {
-      object.tint = 0x333333;
-    }
-    function onPointerOver(object) {
-      object.tint = 0x666666;
-    }
-    function onPointerOut(object) {
-      object.tint = 0xffffff;
-    }
 
     let drawMove = (row, column, value, boardSize) => {
       var index = Math.sqrt(boardSize);
@@ -624,9 +537,8 @@ export class BoardComponent implements OnInit {
         cell.interactive = false;
       }
       let index = Number.parseInt(cell.name);
-      let { row, column } = xxx(boardsize, index);
+      let { row, column } = getCell(boardsize, index);
       this.sendMove(row, column);
-      incrementCounter();
     };
 
     let changeTurnImage = () => {
@@ -636,29 +548,12 @@ export class BoardComponent implements OnInit {
       }
     };
 
-    let incrementCounter = () => {
-      if (moveCounter < boardsize) {
-        ++moveCounter;
-        return;
-      }
-      ++moveCounter;
-    };
-
-    let showPlayerOneWin = () => {
+    let updatePlayerOneScore = () => {
       playerOneScoreText.text = ++score.player1;
-      resultText.text = 'Player X win!';
-      resultText.x = 200;
     };
 
-    let showPlayerTwoWin = () => {
+    let updatePlayerTwoScore = () => {
       playerTwoScoreText.text = ++score.player2;
-      resultText.text = 'Player O win!';
-      resultText.x = 230;
-    };
-
-    let tie = () => {
-      resultText.text = 'Its Tie';
-      resultText.x = 200;
     };
 
     let deleteBoard = () => {

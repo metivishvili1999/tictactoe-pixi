@@ -1,20 +1,10 @@
-import {
-  ChangeDetectorRef,
-  Component,
-  Injectable,
-  OnInit,
-  ViewChild,
-} from '@angular/core';
-import {
-  FormBuilder,
-  FormControl,
-  FormGroup,
-  Validators,
-} from '@angular/forms';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { FormBuilder, FormGroup } from '@angular/forms';
 import * as gameData from '../gameData';
 import { __values } from 'tslib';
 import * as signalR from '@microsoft/signalr';
 import { Router } from '@angular/router';
+
 @Component({
   selector: 'app-lobby',
   templateUrl: './lobby.component.html',
@@ -68,8 +58,7 @@ export class LobbyComponent implements OnInit {
     if (gameData.data.data.user.sessionId != null) {
       this.isConnected = this.connection
         .start()
-        .then(function () {
-        })
+        .then(function () {})
         .catch(function (err) {
           return console.error(err.toString());
         });
@@ -94,7 +83,6 @@ export class LobbyComponent implements OnInit {
       );
 
       this.connection.on('ongamecreate', (errorCode, errorMessage) => {
-        // console.warn(errorCode, errorMessage);
         this.ref.detectChanges();
       });
     }
@@ -108,31 +96,33 @@ export class LobbyComponent implements OnInit {
           ScoreTarget: gameData.data.data.scoreToPlay,
         })
         .catch((err) => console.error(err));
-        if(gameData.data.data.boardSize > 0 && gameData.data.data.scoreToPlay > 0) {
-          this.route.navigateByUrl('/board')
-        } else {
-          this.errorMessage = 'Both parameters are required';
-          this.submitted = false;
-        }
+      if (
+        gameData.data.data.boardSize > 0 &&
+        gameData.data.data.scoreToPlay > 0
+      ) {
+        this.route.navigateByUrl('/board');
+      } else {
+        this.errorMessage = 'Both parameters are required';
+        this.submitted = false;
+      }
     });
   }
 
   joinGame(id) {
     this.isConnected.then(() => {
-      if(this.gameState !== 2) {
+      if (this.gameState !== 2) {
         this.connection
-        .invoke('JoinToGame', {
-          GameId: id,
-        })
-        .then(() => {
-          gameData.data.data.activeGame = id;
-        })
-        this.route.navigateByUrl('/board')
-        .catch((err) => console.error(err));
+          .invoke('JoinToGame', {
+            GameId: id,
+          })
+          .then(() => {
+            gameData.data.data.activeGame = id;
+          });
+        this.route.navigateByUrl('/board').catch((err) => console.error(err));
       }
       if (this.gameState === 2) {
         this.joinDisabled = false;
-        console.log('game is full')
+        console.log('game is full');
       }
     });
   }

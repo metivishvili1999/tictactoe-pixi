@@ -1,15 +1,16 @@
 <div class="wrapper">
   <div class="container" id="container">
     <div class="sign-up-container">
-      <form action="#"
-          *ngIf="!isSuccessful"
-          name="form"
-          (ngSubmit)="f.form.valid && onSubmit()"
-          #f="ngForm"
-          novalidate
+      <form
+        action="#"
+        *ngIf="!isSuccessful"
+        name="form"
+        (ngSubmit)="f.form.valid && onSubmit()"
+        #f="ngForm"
+        novalidate
       >
         <h1>Create Account</h1>
-        
+
         <div class="form-group">
           <label for="firstname">First Name</label>
           <input
@@ -23,7 +24,9 @@
             #firstname="ngModel"
           />
           <div class="alert-danger" *ngIf="firstname.errors && f.submitted">
-            <div *ngIf="firstname.errors['required']">First Name is required</div>
+            <div *ngIf="firstname.errors['required']">
+              First Name is required
+            </div>
             <div *ngIf="firstname.errors['minlength']">
               First Name must be at least 3 characters
             </div>
@@ -33,49 +36,49 @@
           </div>
         </div>
         <div class="form-group">
-            <label for="lastname">Last Name</label>
-            <input
-              type="text"
-              class="form-control"
-              name="lastname"
-              [(ngModel)]="form.lastName"
-              required
-              minlength="3"
-              maxlength="20"
-              #lastname="ngModel"
-            />
-            <div class="alert-danger" *ngIf="lastname.errors && f.submitted">
-              <div *ngIf="lastname.errors['required']">Last Name is required</div>
-              <div *ngIf="lastname.errors['minlength']">
-                Last Name must be at least 3 characters
-              </div>
-              <div *ngIf="lastname.errors['maxlength']">
-                Last Name must be at most 20 characters
-              </div>
+          <label for="lastname">Last Name</label>
+          <input
+            type="text"
+            class="form-control"
+            name="lastname"
+            [(ngModel)]="form.lastName"
+            required
+            minlength="3"
+            maxlength="20"
+            #lastname="ngModel"
+          />
+          <div class="alert-danger" *ngIf="lastname.errors && f.submitted">
+            <div *ngIf="lastname.errors['required']">Last Name is required</div>
+            <div *ngIf="lastname.errors['minlength']">
+              Last Name must be at least 3 characters
+            </div>
+            <div *ngIf="lastname.errors['maxlength']">
+              Last Name must be at most 20 characters
             </div>
           </div>
-          <div class="form-group">
-            <label for="username">Username</label>
-            <input
-              type="text"
-              class="form-control"
-              name="username"
-              [(ngModel)]="form.userName"
-              required
-              minlength="6"
-              maxlength="20"
-              #username="ngModel"
-            />
-            <div class="alert-danger" *ngIf="username.errors && f.submitted">
-              <div *ngIf="username.errors['required']">Username is required</div>
-              <div *ngIf="username.errors['minlength']">
-                Username must be at least 6 characters
-              </div>
-              <div *ngIf="username.errors['maxlength']">
-                Username must be at most 20 characters
-              </div>
+        </div>
+        <div class="form-group">
+          <label for="username">Username</label>
+          <input
+            type="text"
+            class="form-control"
+            name="username"
+            [(ngModel)]="form.userName"
+            required
+            minlength="6"
+            maxlength="20"
+            #username="ngModel"
+          />
+          <div class="alert-danger" *ngIf="username.errors && f.submitted">
+            <div *ngIf="username.errors['required']">Username is required</div>
+            <div *ngIf="username.errors['minlength']">
+              Username must be at least 6 characters
+            </div>
+            <div *ngIf="username.errors['maxlength']">
+              Username must be at most 20 characters
             </div>
           </div>
+        </div>
         <div class="form-group">
           <label for="password">Password</label>
           <input
@@ -105,19 +108,13 @@
         <div class="succ">
           <h1>Your registration is successful!</h1>
           <div class="timer">
-            <button routerLink="/login">
-              Redirect to login
-            </button>
+            <button routerLink="/login">Redirect to login</button>
           </div>
         </div>
       </div>
     </div>
     <div class="right-panel">
-      <img class="right-panel-img" src="assets/images/20220524_152224.jpg"
-      >
+      <img class="right-panel-img" src="assets/images/20220524_152224.jpg" />
     </div>
   </div>
 </div>
-
-
-

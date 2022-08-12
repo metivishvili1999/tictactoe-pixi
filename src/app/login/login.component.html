@@ -1,8 +1,9 @@
 <div class="wrapper">
   <div class="container" id="container">
     <div class="sign-in-container">
-      <form action="#"
-      *ngIf="!isLoggedIn"
+      <form
+        action="#"
+        *ngIf="!isLoggedIn"
         name="form"
         (ngSubmit)="f.form.valid && onSubmit()"
         #f="ngForm"
@@ -50,24 +51,21 @@
           </div>
         </div>
         <div class="form-group">
-          <button class="btn">
-            Login
-          </button>
+          <button class="btn">Login</button>
         </div>
         <div class="form-group">
           <div
             class="alert alert-danger"
             role="alert"
-            *ngIf="f.submitted && !isLoggedIn"
+            *ngIf="f.submitted && isLoginFailed"
           >
             Login failed {{ errorMessage }}
           </div>
         </div>
-  
       </form>
     </div>
     <div class="right-panel">
-      <img class="right-panel-img" src="assets/images/20220524_152224.jpg">
+      <img class="right-panel-img" src="assets/images/20220524_152224.jpg" />
     </div>
   </div>
 </div>

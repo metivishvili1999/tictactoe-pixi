@@ -1,24 +1,23 @@
 * {
-    margin: 0;
-    padding: 0;
+  margin: 0;
+  padding: 0;
 }
-
 
 body {
-    overflow-x: hidden;
-    background: #c94b4b; 
-    background: -webkit-linear-gradient(to top, #4b134f, #c94b4b); 
-    background: linear-gradient(to top, #4b134f, #c94b4b); 
-    margin: 0; 
-    font-family: Roboto, "Helvetica Neue", sans-serif; 
-
+  overflow-x: hidden;
+  background: #c94b4b;
+  background: -webkit-linear-gradient(to top, #4b134f, #c94b4b);
+  background: linear-gradient(to top, #4b134f, #c94b4b);
+  margin: 0;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
 }
 
- canvas {
-    display: flex;
-    margin: auto;
- }
+canvas {
+  display: flex;
+  margin: auto;
+}
 
-html, body { 
-    height: 100%;
+html,
+body {
+  height: 100%;
 }

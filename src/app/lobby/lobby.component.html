@@ -1,61 +1,65 @@
 <div class="lobby">
-    <div class="card">
-      <img
-        class="card-img-top"
-        src="assets/images/tictac.jpg"
-        alt="Card image cap"
-      />
-      <div class="card-body">
-        <h5 class="card-title">Tic Tac Toe</h5>
-        <div class="options">
-
-          <form [formGroup]="gameForm" (ngSubmit)="onSubmit()">
-            <select class="select" formControlName="size" (change)="selectSize($event)">
-              <option [ngValue]="null" disabled required><p>Select size</p></option>
-              <option
-                *ngFor="let size of boardSize"
-                [ngValue]="size.cellNumber"
-                class="option"
-              >
-                {{ size.name }}
-              </option>
-            </select>
-            <select class="select" formControlName="score" (change)="selectScore($event)">
-              <option [ngValue]="null" disabled required>Select score</option>
-              <option
-              class="option"
-               *ngFor="let score of scoreToPlay"
-                [ngValue]="score.score">
-                {{ score.score }}
-              </option>
-            </select>
-
-            <button (click)="sendData()" class="btn btn-primary" 
-            type="submit">Create Match</button>
-            <div
-            class="alert alert-danger"
-            role="alert"
-            *ngIf="!submitted"
+  <div class="card">
+    <img
+      class="card-img-top"
+      src="assets/images/tictac.jpg"
+      alt="Card image cap"
+    />
+    <div class="card-body">
+      <h5 class="card-title">Tic Tac Toe</h5>
+      <div class="options">
+        <form [formGroup]="gameForm" (ngSubmit)="onSubmit()">
+          <select
+            class="select"
+            formControlName="size"
+            (change)="selectSize($event)"
           >
+            <option [ngValue]="null" disabled required>
+              <p>Select size</p>
+            </option>
+            <option
+              *ngFor="let size of boardSize"
+              [ngValue]="size.cellNumber"
+              class="option"
+            >
+              {{ size.name }}
+            </option>
+          </select>
+          <select
+            class="select"
+            formControlName="score"
+            (change)="selectScore($event)"
+          >
+            <option [ngValue]="null" disabled required>Select score</option>
+            <option
+              class="option"
+              *ngFor="let score of scoreToPlay"
+              [ngValue]="score.score"
+            >
+              {{ score.score }}
+            </option>
+          </select>
+
+          <button (click)="sendData()" class="btn btn-primary" type="submit">
+            Create Match
+          </button>
+          <div class="alert alert-danger" role="alert" *ngIf="!submitted">
             {{ errorMessage }}
           </div>
-          </form>
-
-        </div>
+        </form>
       </div>
     </div>
-    <div class="matchList">
-        <div class="matchs" *ngFor="let match of tables">
-            <div class="match-info">
-                <h3>Status: {{ match.stateId }}  </h3>
-                <h3>Board Size:{{match.boardSize}}</h3>
-                <h3>Score: {{ match.targetScore }} </h3>
-            </div>
-            <div class="join">
-                <button (click)="joinGame(match.id)" *ngIf="joinDisabled"
-                 >Join</button>
-            </div>
-        </div>
+  </div>
+  <div class="matchList">
+    <div class="matchs" *ngFor="let match of tables">
+      <div class="match-info">
+        <h3>Status: {{ match.stateId }}</h3>
+        <h3>Board Size:{{ match.boardSize }}</h3>
+        <h3>Score: {{ match.targetScore }}</h3>
+      </div>
+      <div class="join">
+        <button (click)="joinGame(match.id)" *ngIf="joinDisabled">Join</button>
+      </div>
     </div>
   </div>
-
+</div>

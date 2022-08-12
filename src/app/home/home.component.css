@@ -1,207 +1,135 @@
 * {
-    box-sizing: border-box;
-
+  box-sizing: border-box;
 }
 
-/* .welcome {
-    justify-content: center;
-    text-align: center;
-    align-items: center;
-    margin-top: 30px;
-} */
-
-h1, h3 {
-    color: #FFF;
-    padding: 5px;
+h1,
+h3 {
+  color: #fff;
+  padding: 5px;
 }
 
 button {
-    margin: 5px;
-    border-radius: 6px;
+  margin: 5px;
+  border-radius: 6px;
 }
 
 .container {
-    width: auto;
-    max-width: fit-content;
+  width: auto;
+  max-width: fit-content;
 }
 
 .card {
-    border-radius: 20px;
+  border-radius: 20px;
 }
 
 .btn {
-    margin-left: 0px;
+  margin-left: 0px;
 }
-
-
-/* .notlogged {
-    margin-top: 30%;
-    background-color: rgba(255, 255, 255, 0.058);
-    box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
-    border-radius: 15px;
-    display: flex;
-    width: 600px;
-}
-
-.notlogged img {
-    border-radius: 15px;
-    width: 300px;
-}
-
-.notlogged h1 {
-    padding: 10px;
-    margin-top: 15px;
-    text-align: center;
-    align-items: center;
-} */
-
-
-/* .notlogged {
-    margin-top: 30%;
-    background-color: rgba(255, 255, 255, 0.058);
-    box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
-    border-radius: 15px;
-    display: flex;
-    width: 600px;
-}
-
-.notlogged img {
-    border-radius: 15px;
-    width: 300px;
-}
-
-.notlogged h1 {
-    padding: 10px;
-    margin-top: 80px;
-    text-align: center;
-    align-items: center;
-}
-
-
-
-.welcome {
-    margin-left: 10px;
-}
-
-.welcome button {
-    background-color: #000034;
-    color: #fff;
-    width: 80px;
-    padding: 7px;
-    border: none;
-}
-
-.welcome button:hover {
-    color: #df7005;
-    background-color: #000034e6; 
-} */
-
 
 .lobby {
-    margin-top: 30%;
-    background-color: rgba(255, 255, 255, 0.058);
-    box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
-    border-radius: 15px;
-    display: flex;
-    width: 600px;
+  margin-top: 30%;
+  background-color: rgba(255, 255, 255, 0.058);
+  box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+  border-radius: 15px;
+  display: flex;
+  width: 600px;
 }
 
 .lobby img {
-    border-radius: 15px;
-    width: 300px;
+  border-radius: 15px;
+  width: 300px;
 }
 
 .lobby h1 {
-    padding: 10px;
-    margin-top: 80px;
-    text-align: center;
-    align-items: center;
+  padding: 10px;
+  margin-top: 80px;
+  text-align: center;
+  align-items: center;
 }
 
 .aut {
-    margin-left: 10px;
+  margin-left: 10px;
 }
 
 .aut button {
-    background-color: #000034;
-    color: #fff;
-    margin-left: 35%;
-    width: 80px;
-    padding: 7px;
-    border: none;
+  background-color: #000034;
+  color: #fff;
+  margin-left: 35%;
+  width: 80px;
+  padding: 7px;
+  border: none;
 }
 
 .aut button:hover {
-    color: #df7005;
-    background-color: #000034e6; 
+  color: #df7005;
+  background-color: #000034e6;
 }
 
-
 .welc {
-    margin-left: 10px;
+  margin-left: 10px;
 }
 
 .welc button {
-    background-color: #000034;
-    color: #fff;
-    width: 80px;
-    padding: 7px;
-    border: none;
+  background-color: #000034;
+  color: #fff;
+  width: 80px;
+  padding: 7px;
+  border: none;
 }
 
 .welc button:hover {
-    color: #df7005;
-    background-color: #000034e6; 
+  color: #df7005;
+  background-color: #000034e6;
 }
 
 .but {
-    width: 190px;
-    margin: auto;
+  width: 190px;
+  margin: auto;
 }
 
 @media (max-width: 767px) {
-    .lobby {
-        width: auto;
-        max-width: 600px;
-    }
+  .lobby {
+    width: auto;
+    max-width: 600px;
+  }
 
-    .lobby img {
-        width: 15rem;
-    }
+  .lobby img {
+    width: 15rem;
+  }
 
-    .lobby h1 {
-        font-size: 18px;
-        padding:6px;
-        margin-top: 50px;
-        text-align: center;
-        align-items: center;
-    }
+  .lobby h1 {
+    font-size: 18px;
+    padding: 6px;
+    margin-top: 50px;
+    text-align: center;
+    align-items: center;
+  }
 }
 
 @media (max-width: 576px) {
-    .lobby {
-        display: flex;
-        flex-direction: column;
-    }
+  .lobby {
+    display: flex;
+    flex-direction: column;
+  }
 
-    .lobby img {
-        width: 17rem;
-        border-radius:15px 15px 0 0;
-    }
+  .lobby img {
+    width: 17rem;
+    border-radius: 15px 15px 0 0;
+  }
 
-    .lobby h1 {
-        margin-top: 20px;
-    }
+  .lobby h1 {
+    margin-top: 20px;
+  }
 
-    .aut {
-        margin: 20px 10px 20px 10px;
-    }
+  .aut {
+    margin: 20px 10px 20px 10px;
+  }
 
-    .aut button {
-        margin-left: 33%;
-    }
+  .aut button {
+    margin-left: 33%;
+  }
 
-    .but {
-        padding-bottom: 20px;
-    }
+  .but {
+    padding-bottom: 20px;
+  }
 }
