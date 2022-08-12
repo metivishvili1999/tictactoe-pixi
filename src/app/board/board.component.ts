@@ -114,7 +114,7 @@ export class BoardComponent implements OnInit {
             removeCells();
             showPlayerOneWin();
             this.bannerW = true;
-            newScene.visible = true;
+            newScene3.visible = true;
             seriesWinnerText();
             setTimeout(() => {
               this.bannerW = false;
@@ -129,7 +129,7 @@ export class BoardComponent implements OnInit {
             showPlayerOneWin();
             this.bannerL = true;
             seriesLoserText();
-            newScene.visible = true;
+            newScene3.visible = true;
             setTimeout(() => {
               deleteBoard();
               this.route.navigateByUrl('/lobby');
@@ -145,7 +145,10 @@ export class BoardComponent implements OnInit {
             removeCells();
             showPlayerTwoWin();
             this.bannerL = true;
-            newScene.visible = true;
+            newScene.visible = false;
+            newScene1.visible = false;
+            newScene2.visible = false;
+            newScene3.visible = true;
             seriesLoserText();
             setTimeout(() => {
               deleteBoard();
@@ -158,7 +161,10 @@ export class BoardComponent implements OnInit {
             removeCells();
             showPlayerTwoWin();
             this.bannerW = true;
-            newScene.visible = true;
+            newScene.visible = false;
+            newScene1.visible = false;
+            newScene2.visible = false;
+            newScene3.visible = true;
             seriesWinnerText();
             setTimeout(() => {
               deleteBoard();
@@ -183,7 +189,7 @@ export class BoardComponent implements OnInit {
             removeCells();
             showPlayerOneWin();
             this.bannerW = true;
-            newScene.visible = true
+            newScene.visible = true;
             winnerText();
             setTimeout(() => {
               addCells(boardsize);
@@ -198,12 +204,12 @@ export class BoardComponent implements OnInit {
             removeCells();
             showPlayerOneWin();
             this.bannerL = true;
-            newScene.visible = true
+            newScene1.visible = true
             loserText();
             setTimeout(() => {
               addCells(boardsize);
               this.bannerL = false;
-              newScene.visible = false;
+              newScene1.visible = false;
             }, 3000);
           }
         }
@@ -217,12 +223,12 @@ export class BoardComponent implements OnInit {
             removeCells();
             showPlayerTwoWin();
             this.bannerL = true;
-            newScene.visible = true
+            newScene1.visible = true
             loserText();
             setTimeout(() => {
               addCells(boardsize);
               this.bannerL = false;
-              newScene.visible = false;
+              newScene1.visible = false;
             }, 3000);
           } else if (
             gameData.data.data.playerTwo === gameData.data.data.user.userName
@@ -232,7 +238,7 @@ export class BoardComponent implements OnInit {
             removeCells();
             showPlayerTwoWin();
             this.bannerW = true;
-            newScene.visible = true
+            newScene.visible = true;
             winnerText();
             setTimeout(() => {
               addCells(boardsize);
@@ -243,16 +249,21 @@ export class BoardComponent implements OnInit {
         }
 
         if (r.length === 11) {
-          turnOImage.visible = false;
-          turnXImage.visible = true;
-          removeCells();
-          tie();
-          this.bannerD = true;
-          tieText();
-          setTimeout(() => {
-            addCells(boardsize);
-            this.bannerD = false;
-          }, 3000);
+          if(gameData.data.data.playerOne === gameData.data.data.user.userName || 
+             gameData.data.data.playerTwo === gameData.data.data.user.userName) {
+            turnOImage.visible = false;
+            turnXImage.visible = true;
+            removeCells();
+            tie();
+            this.bannerD = true;
+            newScene2.visible = true;
+            tieText();
+            setTimeout(() => {
+              addCells(boardsize);
+              this.bannerD = false;
+              newScene2.visible = false;
+            }, 3000);
+          }
         }
         console.warn(response, resp, r);
       });
@@ -481,6 +492,18 @@ export class BoardComponent implements OnInit {
     app.stage.addChild(newScene);
     newScene.visible = false;
 
+    let newScene1 = new Container();
+    app.stage.addChild(newScene1);
+    newScene1.visible = false;
+
+    let newScene2 = new Container();
+    app.stage.addChild(newScene2);
+    newScene2.visible = false;
+
+    let newScene3 = new Container();
+    app.stage.addChild(newScene3);
+    newScene3.visible = false;
+
 
     let winnerText = () => {
       let winner = new Text('You won this match', style);
@@ -491,25 +514,25 @@ export class BoardComponent implements OnInit {
 
     let loserText = () => {
       let loser = new Text('You Lose this match', style);
-      newScene.addChild(loser);
+      newScene1.addChild(loser);
       loser.position.set(100, 400);
     }
 
     let tieText = () => {
       let tie = new Text('Tie game', style);
-      newScene.addChild(tie);
-      tie.position.set(100, 400);
+      newScene2.addChild(tie);
+      tie.position.set(200, 400);
     }
 
     let seriesWinnerText = () => {
       let swinner = new Text('You won this Series', style);
-      newScene.addChild(swinner);
+      newScene3.addChild(swinner);
       swinner.position.set(100, 400);
     }
 
     let seriesLoserText = () => {
       let sloser = new Text('You Lose this Series', style);
-      newScene.addChild(sloser);
+      newScene3.addChild(sloser);
       sloser.position.set(100, 400);
     }
 
