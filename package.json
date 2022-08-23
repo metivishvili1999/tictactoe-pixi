@@ -23,6 +23,7 @@
     "@microsoft/signalr": "^6.0.7",
     "@pixi/gif": "^1.1.1",
     "@pixi/loaders": "^6.4.2",
+    "bootstrap": "^5.2.0",
     "loader": "^2.1.1",
     "nebular": "^0.0.1",
     "pixi.js": "^6.4.2",

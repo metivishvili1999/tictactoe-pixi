@@ -32,7 +32,27 @@ export class BoardComponent implements OnInit {
 
   constructor(private route: Router, private ref: ChangeDetectorRef) {}
 
+
+
+  
   ngOnInit(): void {
+
+    function resizeCanvasToDisplaySize(canvas) {
+      const dpr = window.devicePixelRatio;
+      const displayWidth  = Math.round(canvas.clientWidth * dpr);
+      const displayHeight = Math.round(canvas.clientHeight * dpr);
+     
+      const needResize = canvas.width  != displayWidth || 
+                         canvas.height != displayHeight;
+     
+      if (needResize) {
+        canvas.width  = displayWidth;
+        canvas.height = displayHeight;
+      }
+     
+      return needResize;
+    }
+
     this.connection = new signalR.HubConnectionBuilder()
       .configureLogging(signalR.LogLevel.Information)
       .withUrl('http://172.25.36.202:8085/signalr', {
@@ -78,6 +98,13 @@ export class BoardComponent implements OnInit {
         console.warn(response);
         this.ref.detectChanges();
       });
+
+      this.connection.on(
+        'getcurrentgame', (response) => {
+          console.warn(response);
+        }
+      )
+
       this.connection.on(
         'nextturn',
         (response, message, row, column, value) => {
@@ -249,6 +276,8 @@ export class BoardComponent implements OnInit {
       });
     }
 
+    resizeCanvasToDisplaySize;
+
     let Application = pixi.Application,
       Container = pixi.Container,
       Graphics = pixi.Graphics,
@@ -270,10 +299,19 @@ export class BoardComponent implements OnInit {
     let app = new Application({
       width: widthX,
       height: heightY,
-      backgroundAlpha: 0,
+      backgroundAlpha: 0
     });
 
     document.body.appendChild(app.view);
+
+    let container = new pixi.Container();
+    app.stage.addChild(container);
+
+    container.x = 0;
+    container.y = 0;
+
+    container.pivot.x = 0;
+    container.pivot.y = 0;
 
     let style = new TextStyle({
       fontStyle: 'italic',
@@ -291,9 +329,8 @@ export class BoardComponent implements OnInit {
 
 
     /*---------- CONTAINERS ----------*/
-
     let gameWrapper = new Container(); // INFO,GAMEBOARD CONT
-    app.stage.addChild(gameWrapper);
+    container.addChild(gameWrapper);
     gameWrapper.visible = false;
 
     let gameField: any = new Container(); //BOARD CONT
@@ -301,19 +338,19 @@ export class BoardComponent implements OnInit {
     gameField.position.set(93, 150);
 
     let winnerCont = new Container();
-    app.stage.addChild(winnerCont);
+    container.addChild(winnerCont);
     winnerCont.visible = false;
 
     let loserCont = new Container();
-    app.stage.addChild(loserCont);
+    container.addChild(loserCont);
     loserCont.visible = false;
 
     let tieCont = new Container();
-    app.stage.addChild(tieCont);
+    container.addChild(tieCont);
     tieCont.visible = false;
 
     let seriesWinnerCont = new Container();
-    app.stage.addChild(seriesWinnerCont);
+    container.addChild(seriesWinnerCont);
     seriesWinnerCont.visible = false;
 
 
@@ -403,7 +440,7 @@ export class BoardComponent implements OnInit {
         cell.x = (i % Math.sqrt(boardsize)) * (squareSize + 5);
         cell.y = Math.floor(i / Math.sqrt(boardsize)) * (squareSize + 5);
         cell.interactive = true;
-        cell.on('click', () => {
+        cell.on('pointertap', () => {
           addValue(cell);
         });
       }

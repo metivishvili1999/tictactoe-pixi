@@ -13,7 +13,6 @@ import { Router } from '@angular/router';
 export class LobbyComponent implements OnInit {
   content?: string;
   isSubmitted!: boolean;
-
   errorMessage = '';
   submitted = true;
   joinDisabled = true;
@@ -35,7 +34,7 @@ export class LobbyComponent implements OnInit {
 
   public connection: signalR.HubConnection;
   public isConnected: any;
-  gameState;
+  public gameState: number;
 
   constructor(
     private route: Router,
@@ -47,6 +46,7 @@ export class LobbyComponent implements OnInit {
       size: [null],
       score: [null],
     });
+    
 
     this.connection = new signalR.HubConnectionBuilder()
       .configureLogging(signalR.LogLevel.Information)
@@ -70,13 +70,18 @@ export class LobbyComponent implements OnInit {
             player.playerOne.userName == gameData.data.data.user.userName ||
             player.playerTwo.userName == gameData.data.data.user.userName
           ) {
-            this.gameState = player.stateId;
           }
         })[0];
         gameData.data.setboardSize(response[0].boardSize);
         gameData.data.setScore(response[0].targetScore);
         this.ref.detectChanges();
       });
+
+      this.connection.on('getcurrentgame', (response) => {
+        console.warn(response)
+      });
+
+
       this.connection.on(
         'nextturn',
         (response, message, row, column, value) => {}
@@ -119,9 +124,8 @@ export class LobbyComponent implements OnInit {
             gameData.data.data.activeGame = id;
           });
         this.route.navigateByUrl('/board').catch((err) => console.error(err));
-      }
-      if (this.gameState === 2) {
-        this.joinDisabled = false;
+        console.warn(this.gameState)
+      } else if (this.gameState === 2) {
         console.log('game is full');
       }
     });
