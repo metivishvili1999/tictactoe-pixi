@@ -27,7 +27,7 @@ export class AppComponent implements OnInit {
   }
 
   home(): void {
-    window.location.reload();
+    // window.location.reload();
     this.route.navigateByUrl('/home');
   }
 

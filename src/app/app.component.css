@@ -15,10 +15,12 @@
   background-color: #f05a22;
   border: 2px solid #f05a22;
   color: #ffffff;
-  font-weight: 500;
+  font-weight: 600;
   letter-spacing: 0.5px;
   text-transform: uppercase;
   padding: 3px 15px;
+  box-shadow: 0 0 20px #11324D 0.8;
+  transition: 0.4s;
 }
 
 .nav-item button:hover {

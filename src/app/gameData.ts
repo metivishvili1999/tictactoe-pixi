@@ -9,10 +9,15 @@ class GameData {
             userName: null
         },
         gameTables: [],
+        joinable: [],
+        posX:0,
+        posY:0,
         activeGame: 0,
         isDone: false,
         playerOne: null,
-        playerTwo: null
+        playerTwo: null,
+        pl1: null,
+        pl2: null
     }
 
 

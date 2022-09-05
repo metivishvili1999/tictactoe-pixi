@@ -17,6 +17,7 @@ export class LobbyComponent implements OnInit {
   submitted = true;
   joinDisabled = true;
 
+
   boardSize = [
     { id: 3, name: '3x3', cellNumber: 9 },
     { id: 4, name: '4x4', cellNumber: 16 },
@@ -46,7 +47,6 @@ export class LobbyComponent implements OnInit {
       size: [null],
       score: [null],
     });
-    
 
     this.connection = new signalR.HubConnectionBuilder()
       .configureLogging(signalR.LogLevel.Information)
@@ -72,24 +72,74 @@ export class LobbyComponent implements OnInit {
           ) {
           }
         })[0];
+
         gameData.data.setboardSize(response[0].boardSize);
         gameData.data.setScore(response[0].targetScore);
         this.ref.detectChanges();
+        console.warn(response);
       });
 
-      this.connection.on('getcurrentgame', (response) => {
-        console.warn(response)
+      this.connection.on('getcurrentgame', (response, playerId) => {
+        response.playerOne.userName == gameData.data.data.playerOne;
+        response.playerTwo.userName == gameData.data.data.playerTwo;
+
+
+        console.warn(response, playerId);
       });
 
+      this.connection.on('ongamejoin', (errorCode, gameId, errMessage, username) => {
+        console.warn(errorCode, gameId, errMessage, username);
+      });
+
+      this.connection.on('onreconnected',(joinableList, dict, userId) => {
+        gameData.data.data.joinable = joinableList;
+        this.ref.detectChanges();
+        console.warn(joinableList, dict, userId)
+      })
+
+
+      this.connection.on('getmovehistory', (moveList, userName) => {
+        console.warn(moveList, userName)
+      })
 
       this.connection.on(
         'nextturn',
         (response, message, row, column, value) => {}
       );
 
+      this.connection.on('matchstart', (gameId) => {
+        console.warn(gameId);
+      });
+
       this.connection.on('ongamecreate', (errorCode, errorMessage) => {
         this.ref.detectChanges();
       });
+    }
+  }
+
+  reconnect(gameId) {
+    this.isConnected.then(() => {
+      this.connection
+        .invoke('OnReconnected', {
+          GameId: gameId
+        })
+        .then(() => {
+          gameData.data.data.activeGame = gameId;
+        });
+      this.route.navigateByUrl('/board').catch((err) => console.error(err));
+      console.warn(gameId);
+    });
+  }
+
+  drawMoves(moveList) {
+    for (let i = 0; i < moveList; i++) {
+      if(i === 0) {
+        console.log(i + 'is O')
+      } else if (i === 1) {
+        console.log(i + 'is X')
+      } else if (i === -1) {
+        console.log(i + 'is empty')
+      }
     }
   }
 
@@ -101,6 +151,7 @@ export class LobbyComponent implements OnInit {
           ScoreTarget: gameData.data.data.scoreToPlay,
         })
         .catch((err) => console.error(err));
+        gameData.data.data.playerOne = gameData.data.data.user.userName;
       if (
         gameData.data.data.boardSize > 0 &&
         gameData.data.data.scoreToPlay > 0
@@ -113,26 +164,29 @@ export class LobbyComponent implements OnInit {
     });
   }
 
-  joinGame(id) {
+  joinGame(gameId) {
     this.isConnected.then(() => {
-      if (this.gameState !== 2) {
-        this.connection
-          .invoke('JoinToGame', {
-            GameId: id,
-          })
-          .then(() => {
-            gameData.data.data.activeGame = id;
-          });
-        this.route.navigateByUrl('/board').catch((err) => console.error(err));
-        console.warn(this.gameState)
-      } else if (this.gameState === 2) {
-        console.log('game is full');
-      }
+      this.connection
+        .invoke('JoinToGame', {
+          GameId: gameId
+        })
+        .then(() => {
+          gameData.data.data.activeGame = gameId;
+          gameData.data.data.playerTwo = gameData.data.data.user.userName
+        });
+      this.route.navigateByUrl('/board').catch((err) => console.error(err));
+      // console.warn(gameId);
     });
   }
 
+
+
   public get tables() {
     return gameData.data.data.gameTables;
+  }
+
+  public get lists() {
+    return gameData.data.data.joinable;
   }
 
   selectSize(e: any): void {

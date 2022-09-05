@@ -39,10 +39,10 @@
               {{ score.score }}
             </option>
           </select>
+            <button (click)="sendData()"  class="btn btn-primary" type="submit">
+              Create Match
+            </button>
 
-          <button (click)="sendData()" class="btn btn-primary" type="submit">
-            Create Match
-          </button>
           <div class="alert alert-danger" role="alert" *ngIf="!submitted">
             {{ errorMessage }}
           </div>
@@ -58,8 +58,18 @@
         <h3>Score: {{ match.targetScore }}</h3>
       </div>
       <div class="join">
-        <button (click)="joinGame(match.id)" *ngIf="joinDisabled">Join</button>
+        <button (click)="joinGame(match.gameId)" *ngIf="joinDisabled">Join</button>
       </div>
     </div>
+    <!-- <div class="matchs" *ngFor="let match of lists">
+      <div class="match-info">
+        <h3>Status: {{ match.stateId }}</h3>
+        <h3>Board Size:{{ match.boardSize }}</h3>
+        <h3>Score: {{ match.targetScore }}</h3>
+      </div>
+      <div class="join">
+        <button (click)="reconnect(match.gameId)">Join</button>
+      </div>
+    </div> -->
   </div>
 </div>
