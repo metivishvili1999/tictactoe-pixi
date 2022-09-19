@@ -14,3 +14,22 @@
     justify-content: center;
     align-items: center;
 }
+
+
+#my-popup{
+    color: wheat;
+    font-size: 30px;
+    text-align: center;
+	Width: 600px;
+	Height: 100px;
+	Background: #1c1d1e !important;
+	Box-sizing: border-box; 
+	Padding: 40px;
+    border-radius: 15px;
+	Position:absolute;
+	top:18%;
+	left:50%;
+	Transform: translate(-50%,-50%);
+
+	display:none;
+}

@@ -6,6 +6,7 @@ button {
 }
 
 .btn {
+  font-size: 14px;
   font-weight: 600;
   border: none;
   box-shadow: 0 0 20px #11324D 0.8;
@@ -47,16 +48,18 @@ button {
 
 .option {
   color: #fff;
+  font-size: 12px;
 }
 
 .card {
   display: flex;
-  width: 18rem;
+  width: 15rem;
   flex-direction: row;
   border-radius: 20px;
   margin: auto;
   margin-left: 25%;
-  margin-top: 60px;
+  margin-top: 30px;
+  margin-bottom: 30px;
   background-color: #2c616100;
 }
 
@@ -128,10 +131,9 @@ button {
 .join button {
   background-color: #000034;
   color: #fff;
-  padding: 10px 20px;
-  font-size: 18px;
+  padding: 5px 10px;
+  font-size: 14px;
   border: none;
-  margin: 0 10px 0 10px;
 }
 
 .join button:hover {
@@ -148,6 +150,135 @@ button {
   margin-top: 15px;
   padding: 6px;
 }
+
+
+
+
+
+
+
+.tabs {
+  float: none;
+  list-style: none;
+  position: relative;
+  text-align: left;
+}
+
+
+.tabs li {
+    float: left;
+    display: block;
+  }
+
+.tabs input[type="radio"] {
+    position: absolute;
+    top: 0;
+    left: -9999px;
+  }
+
+.tabs label {
+    display: block;
+    padding: 10px 21px;
+    font-size: 20px;
+    font-weight: normal;
+    cursor: pointer;
+    position: relative;
+    color: white;
+    /* background-color: #c94b4b; */
+    background-color: #c94b4b33;
+    box-shadow: rgb(0 0 0 / 24%) 0px 0px 5px;
+    border: 2px solid #c94b4bc6;
+    margin-bottom: 0;
+  }
+  .tab-content{
+    z-index: 2;
+    display: none; 
+    overflow: hidden;
+    width: 100%;
+    font-size: 17px;
+    line-height: 15px;
+    position: absolute;
+    left: 0; 
+  }
+
+
+  .tab1{
+    border-top-left-radius: 8px;
+    margin-left: 180px;
+  }
+
+  .tab2 {
+    border-top-right-radius: 8px;
+  }
+
+  [id^="tab"]:checked ~ [id^="tab-content"] {
+    display: flex;
+    flex-direction: column;
+  }
+
+
+
+
+
+
+
+.history {
+  display: flex;
+  flex-direction: column;
+  margin: auto;
+}
+
+.games {
+  background-color: #c94b4b33;
+  box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+  border: 1px solid #c94b4bc6;
+  border-radius: 10px;
+  padding: 10px 0 10px 0;
+  margin: auto;
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+}
+
+.games-info {
+  display: flex;
+  flex-direction: row;
+  margin: auto;
+  margin-left: 30px;
+}
+
+.hp {
+  padding-right: 80px !important;
+}
+
+.games-info h3 {
+  color: #fff;
+  font-size: 18px;
+  letter-spacing: 1px;
+  padding-right: 50px;
+  margin-bottom: 0;
+  line-height: 2;
+}
+
+.game-info {
+  display: flex;
+  flex-direction: row;
+  margin: auto;
+  margin-left: 20px;
+}
+
+
+.game-info h3 {
+  color: #fff;
+  font-size: 15px;
+  letter-spacing: 1px;
+  padding-right: 80px;
+  margin-bottom: 0;
+  line-height: 2;
+}
+
+
+
 
 @media (max-width: 991px) {
   .match-info {

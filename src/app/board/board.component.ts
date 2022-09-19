@@ -22,6 +22,7 @@ export class BoardComponent implements OnInit {
   public posX;
   public posY;
   isFilled: boolean = false;
+  isFinnished: boolean = false;
 
   clicked: boolean = true;
 
@@ -35,6 +36,7 @@ export class BoardComponent implements OnInit {
   constructor(private route: Router, private ref: ChangeDetectorRef) {}
 
   ngOnInit(): void {
+
     this.connection = new signalR.HubConnectionBuilder()
       .configureLogging(signalR.LogLevel.Information)
       .withUrl('http://172.25.36.202:8085/signalr', {
@@ -50,20 +52,6 @@ export class BoardComponent implements OnInit {
           return console.error(err.toString());
         });
 
-
-        this.connection.on('getcurrentgame', (response, playerId) => {
-          response.playerOne.userName == gameData.data.data.playerOne;
-          response.playerTwo.userName == gameData.data.data.playerTwo;
-          
-          if(response.playerOne.userName === gameData.data.data.user.userName) {
-            firstPlayerName.visible = true;
-            secondPlayerName.visible = false;
-          }
-
-          console.warn(response, playerId);
-        });
-
-        
       this.connection.on('getallgame', (response) => {
         gameData.data.data.gameTables = response;
 
@@ -75,221 +63,150 @@ export class BoardComponent implements OnInit {
             gameData.data.data.activeGame = player.gameId;
             this.gameState = player.stateId;
           }
-
-
+          // secondPlayerName.visible = false;
         })[0];
-        gameData.data.setboardSize(response[0].boardSize);
-        gameData.data.setScore(response[0].targetScore);
-
-        console.warn(gameData.data.data.playerTwo, gameData.data.data.user.userName)
-        console.warn(response);
-        this.ref.detectChanges();
+        if (response) {
+          gameData.data.setboardSize(response[0].boardSize);
+          gameData.data.setScore(response[0].targetScore);
+          console.warn(response);
+          this.ref.detectChanges();
+        }
       });
 
-
-      setTimeout(() => {
-        firstPlayerName.visible = false;
-        secondPlayerName.visible = false;
-      }, 5000);
-      
-      
-      this.connection.on(
-        'nextturn',
-        (response, gameid, message, row, column, value) => {
+      this.connection.on('nextturn',(response, gameid, message, row, column, value) => {
           if (response === 1) {
             gameData.data.data.posX = row;
             gameData.data.data.posY = column;
-            if (move) {
-              movePosX;
-              movePosY = movePosY + 25;
-              move = !move;
-              movePosX = movePosX - 60;
-            } else if (!move) {
-              movePosY;
-              movePosX = movePosX + 60;
-              move = !move;
-            }
             drawMove(row, column, value, boardsize);
-              moveHistory();
             changeTurnImage();
           } else if (response === -1) {
             popup();
           }
-          console.warn(response, message, row, column, value);
+          console.warn(response, gameid, message, row, column, value);
+          console.warn(gameData.data.data.rejoinedPlayer)
         }
       );
 
-      this.connection.on(
-        'gameend',
-        (gameId, firstPlayerScore, secondPlayerScore, message) => {
+      this.connection.on('gameend',(gameId, firstPlayerScore, secondPlayerScore, message) => {
           if (firstPlayerScore === gameData.data.data.scoreToPlay) {
-            if (
-              gameData.data.data.playerOne === gameData.data.data.user.userName
-            ) {
-              removeCells();
-              updatePlayerOneScore();
+            removeCells();
+            gameWrapper.visible = false;
+            seriesWinnerCont.visible = true;
+            if (gameData.data.data.playerOne === gameData.data.data.user.userName) {
               this.bannerW = true;
-              seriesWinnerCont.visible = true;
               seriesWinnerText();
               setTimeout(() => {
                 this.bannerW = false;
                 deleteBoard();
-                removeHistory();
                 document.body.removeChild;
                 this.route.navigateByUrl('/lobby');
-              }, 5000);
+              }, 3000);
               turnX = !turnX;
-            } else if (
-              gameData.data.data.playerTwo === gameData.data.data.user.userName
-            ) {
-              removeCells();
-              updatePlayerOneScore();
+            } else if (gameData.data.data.playerTwo === gameData.data.data.user.userName) {
               this.bannerL = true;
               seriesLoserText();
-              seriesWinnerCont.visible = true;
               setTimeout(() => {
                 deleteBoard();
-                removeHistory();
                 this.route.navigateByUrl('/lobby');
                 this.bannerL = false;
-              }, 5000);
+              }, 3000);
               turnX = !turnX;
             }
           }
           if (secondPlayerScore === gameData.data.data.scoreToPlay) {
-            if (
-              gameData.data.data.playerOne === gameData.data.data.user.userName
-            ) {
-              removeCells();
-              updatePlayerTwoScore();
+            seriesWinnerCont.visible = true;
+            gameWrapper.visible = false;
+            winnerCont.visible = false;
+            loserCont.visible = false;
+            tieCont.visible = false;
+            removeCells();
+            if (gameData.data.data.playerOne === gameData.data.data.user.userName) {
               this.bannerL = true;
-              winnerCont.visible = false;
-              loserCont.visible = false;
-              tieCont.visible = false;
-              seriesWinnerCont.visible = true;
               seriesLoserText();
               setTimeout(() => {
                 deleteBoard();
-                removeHistory();
                 this.route.navigateByUrl('/lobby');
-              }, 5000);
+              }, 3000);
               turnX = !turnX;
-            } else if (
-              gameData.data.data.playerTwo === gameData.data.data.user.userName
-            ) {
-              removeCells();
-              updatePlayerTwoScore();
+            } else if (gameData.data.data.playerTwo === gameData.data.data.user.userName) {
               this.bannerW = true;
-              winnerCont.visible = false;
-              loserCont.visible = false;
-              tieCont.visible = false;
-              seriesWinnerCont.visible = true;
               seriesWinnerText();
               setTimeout(() => {
                 deleteBoard();
-                removeHistory();
                 this.route.navigateByUrl('/lobby');
-              }, 5000);
+              }, 3000);
               turnX = !turnX;
             }
           }
-          console.warn(firstPlayerScore, secondPlayerScore, message);
+          console.warn(gameId, firstPlayerScore, secondPlayerScore, message);
         }
       );
 
-      let firstpoint = 0;
-      let secpoint = 0;
+      this.connection.on('matchend',(gameId, firstPlayerScore, secondPlayerScore, firstplayer, secondplayer, message) => {
+          if (firstPlayerScore > gameData.data.data.firstpoint) {
+            gameData.data.data.firstpoint++;
+            turnOImage.visible = false;
+            turnXImage.visible = true;
+            removeCells();
+            updatePlayerOneScore();
+            updatePlayersScores();
+            if (firstplayer === gameData.data.data.user.userName) {
+              this.bannerW = true;
+              winnerCont.visible = true;
+              winnerText();
+              setTimeout(() => {
+                addCells(boardsize);
+                this.bannerW = false;
+                winnerCont.visible = false;
+                gameWrapper.visible = true;
+              }, 3000);
+            } else if (secondplayer === gameData.data.data.user.userName) {
+              this.bannerL = true;
+              loserCont.visible = true;
+              loserText();
+              setTimeout(() => {
+                addCells(boardsize);
+                this.bannerL = false;
+                loserCont.visible = false;
+                gameWrapper.visible = true;
+              }, 3000);
+            }
+          }
 
-      
-      this.connection.on(
-        'matchend',
-        (gameId, firstPlayerScore, secondPlayerScore, message) => {
-          console.warn(gameData.data.data.playerOne, gameData.data.data.playerTwo)
-          if (firstPlayerScore > firstpoint) {
-            firstpoint++;
-            move = !move;
-            if (
-              gameData.data.data.playerOne === gameData.data.data.user.userName
-            ) {
-              turnOImage.visible = false;
-              turnXImage.visible = true;
-              removeCells();
-              updatePlayerOneScore();
-              this.bannerW = true;
-              winnerCont.visible = true;
-              winnerText();
-              setTimeout(() => {
-                addCells(boardsize);
-                removeHistory();
-                this.bannerW = false;
-                winnerCont.visible = false;
-                gameWrapper.visible = true;
-              }, 3000);
-            } else if (
-              gameData.data.data.playerTwo === gameData.data.data.user.userName
-            ) {
-              turnOImage.visible = false;
-              turnXImage.visible = true;
-              removeCells();
-              updatePlayerOneScore();
+          if (secondPlayerScore > gameData.data.data.secpoint) {
+            gameData.data.data.secpoint++;
+            turnOImage.visible = false;
+            turnXImage.visible = true;
+            removeCells();
+            updatePlayerTwoScore();
+            updatePlayersScores();
+            if (firstplayer === gameData.data.data.user.userName) {
               this.bannerL = true;
               loserCont.visible = true;
               loserText();
               setTimeout(() => {
                 addCells(boardsize);
-                removeHistory();
                 this.bannerL = false;
                 loserCont.visible = false;
                 gameWrapper.visible = true;
               }, 3000);
-            }
-          }
-          if (secondPlayerScore > secpoint) {
-            secpoint++;
-            move = !move;
-            if (
-              gameData.data.data.playerOne === gameData.data.data.user.userName
-            ) {
-              turnOImage.visible = false;
-              turnXImage.visible = true;
-              removeCells();
-              updatePlayerTwoScore();
-              this.bannerL = true;
-              loserCont.visible = true;
-              loserText();
-              setTimeout(() => {
-                addCells(boardsize);
-                removeHistory();
-                this.bannerL = false;
-                loserCont.visible = false;
-                gameWrapper.visible = true;
-              }, 3000);
-            } else if (
-              gameData.data.data.playerTwo === gameData.data.data.user.userName
-            ) {
-              turnOImage.visible = false;
-              turnXImage.visible = true;
-              removeCells();
-              updatePlayerTwoScore();
+            } else if (secondplayer === gameData.data.data.user.userName) {
               this.bannerW = true;
               winnerCont.visible = true;
               winnerText();
               setTimeout(() => {
                 addCells(boardsize);
-                removeHistory();
                 this.bannerW = false;
                 winnerCont.visible = false;
                 gameWrapper.visible = true;
               }, 3000);
             }
           }
+
           // THAT MEANS TIE
           if (message.length === 11) {
-            if (
-              gameData.data.data.playerOne ===
-                gameData.data.data.user.userName ||
-              gameData.data.data.playerTwo === gameData.data.data.user.userName
-            ) {
+            if (gameData.data.data.playerOne === gameData.data.data.user.userName ||
+              gameData.data.data.playerTwo === gameData.data.data.user.userName) {
               turnOImage.visible = false;
               turnXImage.visible = true;
               removeCells();
@@ -297,44 +214,62 @@ export class BoardComponent implements OnInit {
               tieCont.visible = true;
               tieText();
               setTimeout(() => {
+                gameWrapper.visible = true;
                 addCells(boardsize);
-                removeHistory();
                 this.bannerD = false;
                 tieCont.visible = false;
               }, 3000);
             }
           }
-          console.warn(firstPlayerScore, secondPlayerScore, message);
+
+          // gameData.data.data.rejoined = false;
+          // console.warn(gameData.data.data.rejoined)
+          console.warn(gameId, firstPlayerScore, secondPlayerScore, message);
         }
       );
 
-      this.connection.on('onreconnected',(joinableList) => {
+      this.connection.on('onreconnected', (joinableList, dict, userId) => {
         gameData.data.data.joinable = joinableList;
         this.ref.detectChanges();
-        console.warn(joinableList)
-      })
+        console.warn(joinableList, dict, userId);
+      });
 
-      this.connection.on('getmovehistory', (moveList, userName) => {
-        if(moveList[0] === 1) {
-          console.warn('Fiirst')
+      this.connection.on('alert', (code, message) => {
+        if (code === -1) {
+          showPopUp();
+        } else if (code === 1) {
+          hidePopUp();
         }
-        console.warn(moveList, userName)
-      })
+
+        this.ref.detectChanges();
+        console.warn(code, message);
+      });
 
       this.connection.on('matchstart', (gameId) => {
-        console.warn(gameId);
+        // console.warn(gameId);
       });
+
       this.connection.on('ongamecreate', (errorCode, errorMessage) => {
         console.warn(errorCode, errorMessage);
         this.ref.detectChanges();
       });
 
-      this.connection.on('ongamejoin', (errorCode, gameId, errMessage, username) => {
-        console.warn(errorCode, gameId, errMessage, username);
-      });
+      this.connection.on('ongamejoin',(errorCode, gameId, errMessage, username) => {
+        waitForOpp.visible= false;
 
+        let oppConnected = new Text(gameData.data.data.sec + ' Connected, your Turn!', style3);
+        gameWrapper.addChild(oppConnected);
+        oppConnected.position.set(170,0);
+
+        setTimeout(() => {
+          oppConnected.visible = false;
+        },3000 )
+          console.warn(errorCode, gameId, errMessage, username);
+        }
+      );
     }
-    
+
+
     let Application = pixi.Application,
       Container = pixi.Container,
       Graphics = pixi.Graphics,
@@ -383,13 +318,32 @@ export class BoardComponent implements OnInit {
       fill: 'white',
     });
 
+    let style2 = new TextStyle({
+      fontFamily: 'Georgia',
+      fontStyle: 'italic',
+      fontSize: 22,
+      fill: 'white',
+    });
+
+    let style3 = new TextStyle({
+      fontFamily: 'Georgia',
+      fontStyle: 'italic',
+      fontSize: 22,
+      fill: 'green',
+    });
+
+    let style4 = new TextStyle({
+      fontFamily: 'Georgia',
+      fontStyle: 'italic',
+      fontSize: 22,
+      fill: 'orange',
+    });
+
+
     /*---------- CONTAINERS ----------*/
     let gameWrapper = new Container(); // INFO,GAMEBOARD CONT
     container.addChild(gameWrapper);
     gameWrapper.visible = false;
-
-    let historyCont = new Container();
-    gameWrapper.addChild(historyCont);
 
     let gameField: any = new Container(); //BOARD CONT
     gameWrapper.addChild(gameField);
@@ -412,6 +366,17 @@ export class BoardComponent implements OnInit {
     seriesWinnerCont.visible = false;
 
     /* ---------- GAME INFO ---------- */
+    console.warn(gameData.data.data.rejoined)
+    setTimeout(() => {
+      drawMovesHistory();
+      if(gameData.data.data.rejoined === true) {
+        updatePlayersScores();
+      }
+    }, 100);
+
+    
+    console.warn(gameData.data.data.rejoined)
+
     let scoreText = new Text('Target score:', style1);
     gameWrapper.addChild(scoreText);
     scoreText.position.set(210, 70);
@@ -425,26 +390,56 @@ export class BoardComponent implements OnInit {
     scoreLine.alpha = 0.3;
 
     let firstPlayerName = new Text(
-      gameData.data.data.user.userName + ', You are playing as X',
-      style1
+        gameData.data.data.user.userName +
+        ', You are playing as X',
+      style2
     );
     gameWrapper.addChild(firstPlayerName);
-    firstPlayerName.position.set(50, 20);
+    firstPlayerName.position.set(170, 30);
     firstPlayerName.visible = false;
 
     let secondPlayerName = new Text(
       gameData.data.data.user.userName + ', You are playing as O',
-      style1
+      style2
     );
     gameWrapper.addChild(secondPlayerName);
-    secondPlayerName.position.set(50, 20);
+    secondPlayerName.position.set(170, 30);
+    secondPlayerName.visible = false;
 
-    if(gameData.data.data.user.userName === gameData.data.data.playerTwo) {
-      secondPlayerName.visible = true;
 
+    let waitForOpp = new Text('Waiting for your Opponent!', style4);
+    gameWrapper.addChild(waitForOpp);
+    waitForOpp.position.set(170, 0);
+    
+
+    if(gameData.data.data.rejoined === true ) {
+      waitForOpp.visible = false;
     }
 
-      
+
+    if (gameData.data.data.playerOne === gameData.data.data.user.userName) {
+      firstPlayerName.visible = true;
+      gameData.data.data.first = gameData.data.data.user.userName;
+    }
+    if(gameData.data.data.sec) {
+      let yourOpp = new Text('You are playing against ' + gameData.data.data.first, style4);
+      gameWrapper.addChild(yourOpp);
+      yourOpp.position.set(170, 0);
+      setTimeout(() => {
+        yourOpp.visible = false;
+      }, 3000)
+      waitForOpp.visible = false;
+      secondPlayerName.visible = true;
+    }
+
+    setTimeout(() => {
+    firstPlayerName.visible = false;
+    secondPlayerName.visible = false;
+    }, 5000);
+
+
+
+
 
     let player1 = new Text('Player X:', style1);
     gameWrapper.addChild(player1);
@@ -482,41 +477,6 @@ export class BoardComponent implements OnInit {
     turnOImage.alpha = 1;
     turnOImage.visible = false;
 
-    let historyText = new Text('History', style1);
-    gameWrapper.addChild(historyText);
-    historyText.position.set(500, 150);
-    historyText.alpha = 0.6;
-
-    let historyLine = new Graphics();
-    gameWrapper.addChild(historyLine);
-    historyLine.lineStyle(3, 0xffffff, 1);
-    historyLine.moveTo(540, 185);
-    historyLine.lineTo(540, 560);
-    historyLine.alpha = 0.3;
-
-    let moveX: Sprite = Sprite.from('assets/images/X.png');
-    gameWrapper.addChild(moveX);
-    moveX.scale.set(0.3);
-    moveX.position.set(505, 185);
-
-    let moveO: Sprite = Sprite.from('assets/images/O.png');
-    gameWrapper.addChild(moveO);
-    moveO.scale.set(0.3);
-    moveO.position.set(550, 185);
-
-    let movePosY = 190;
-    let movePosX = 550;
-
-    let moveHistory = () => {
-      var move = new Text(
-        '[' + gameData.data.data.posX + ',' + gameData.data.data.posY + ']',
-        style1
-      );
-      historyCont.addChild(move);
-      move.position.set(movePosX, movePosY);
-      move.scale.set(0.8);
-    };
-
     let scoretoplay = gameData.data.data.scoreToPlay;
     let boardsize = gameData.data.data.boardSize;
     let squareSize = 400 / Math.sqrt(boardsize);
@@ -543,8 +503,8 @@ export class BoardComponent implements OnInit {
         cell.x = (i % Math.sqrt(boardsize)) * (squareSize + 5);
         cell.y = Math.floor(i / Math.sqrt(boardsize)) * (squareSize + 5);
         cell.interactive = true;
-        cell.on('pointertap', () => {
-          addValue(cell);
+        cell.on('pointertap', (value) => {
+          addValue(cell, value);
         });
       }
     };
@@ -573,18 +533,12 @@ export class BoardComponent implements OnInit {
       }
     };
 
-    let removeHistory = () => {
-      for (var i = historyCont.children.length - 1; i >= 0; i--) {
-        historyCont.removeChild(historyCont.children[i]);
-        movePosY = 190;
-        movePosX = 550;
-      }
-    };
-
     // CREATING BOARD WITH CHOSEN PARAMETERS
     addCells(boardsize);
     targetScore(scoretoplay);
     gameWrapper.visible = true;
+
+    
 
     let winnerText = () => {
       let winner = new Text('You won this match', style);
@@ -619,7 +573,7 @@ export class BoardComponent implements OnInit {
       sloser.position.set(130, 160);
     };
 
-    let drawMove = (row, column, value, boardSize) => {
+    const drawMove = (row, column, value, boardSize) => {
       var index = Math.sqrt(boardSize);
       let childIndex = 0;
       let isBreak = false;
@@ -633,6 +587,9 @@ export class BoardComponent implements OnInit {
         }
         if (isBreak) {
           break;
+        }
+        if (childIndex === boardSize) {
+          childIndex = childIndex;
         }
       }
       let cell = gameField.getChildAt(childIndex);
@@ -659,9 +616,9 @@ export class BoardComponent implements OnInit {
       cell.value = value;
     };
 
-    let addValue = (cell) => {
+    let addValue = (cell, value) => {
       if (turnX && !this.clicked && !cell.isFilled) {
-        let x: Sprite = Sprite.from('assets/images/X.png');
+        let x: Sprite = Sprite.from(`assets/images/${value}.png`);
         x.width = squareSize;
         x.height = squareSize;
         x.position.x = squareSize / 10;
@@ -669,12 +626,12 @@ export class BoardComponent implements OnInit {
         cell.addChild(x);
         turnX = !turnX;
         cell.isFilled = true;
-        cell.value = 'x';
+        cell.value = 'X';
         cell.interactive = false;
       }
 
       if (!turnX && !this.clicked && !cell.isFilled) {
-        let o: Sprite = Sprite.from('assets/images/O.png');
+        let o: Sprite = Sprite.from(`assets/images/${value}.png`);
         o.width = squareSize;
         o.height = squareSize;
         o.position.x = squareSize / 10;
@@ -682,12 +639,55 @@ export class BoardComponent implements OnInit {
         cell.addChild(o);
         turnX = !turnX;
         cell.isFilled = true;
-        cell.value = 'o';
+        cell.value = 'O';
         cell.interactive = false;
       }
       let index = Number.parseInt(cell.name);
       let { row, column } = getCell(boardsize, index);
       this.sendMove(row, column);
+    };
+
+    const drawMovesHistory = () => {
+      let movesHistoryArray = gameData.data.data.movesHistory;
+      let movesArraySqrt = Math.sqrt(movesHistoryArray.length);
+      let row = 0;
+      let column = 0;
+      let value = '';
+
+      for (let i = 0; i < movesHistoryArray.length; i++) {
+        // if (movesHistoryArray.length > 0) {
+        //   playerOneScoreText.text = gameData.data.data.firstpoint;
+        //   playerTwoScoreText.text = gameData.data.data.secpoint;
+        // }
+        if (i % movesArraySqrt == 0) {
+          row = i / movesArraySqrt;
+          column = i - row * movesArraySqrt;
+          value =
+            movesHistoryArray[i] == 0
+              ? 'O'
+              : movesHistoryArray[i] == 1
+              ? 'X'
+              : '';
+          if (value !== '') {
+            drawMove(row, column, value, movesHistoryArray.length);
+          }
+        } else {
+          value =
+            movesHistoryArray[i] == 0
+              ? 'O'
+              : movesHistoryArray[i] == 1
+              ? 'X'
+              : '';
+          column = i - row * movesArraySqrt;
+          if (value !== '') {
+            drawMove(row, column, value, movesHistoryArray.length);
+          }
+        }
+        // playerOneScoreText.text = gameData.data.data.firstpoint;
+        // playerTwoScoreText.text = gameData.data.data.secpoint;
+      }
+
+      console.warn(movesHistoryArray.length, gameData.data.data.firstpoint, gameData.data.data.secpoint)
     };
 
     let changeTurnImage = () => {
@@ -705,6 +705,11 @@ export class BoardComponent implements OnInit {
       playerTwoScoreText.text = ++score.player2;
     };
 
+    let updatePlayersScores = () => {
+      playerOneScoreText.text = gameData.data.data.firstpoint;
+      playerTwoScoreText.text = gameData.data.data.secpoint;
+    }
+
     let deleteBoard = () => {
       document.body.removeChild(app.view);
     };
@@ -717,7 +722,27 @@ export class BoardComponent implements OnInit {
         pop.visible = false;
       }, 700);
     };
+
+    function showPopUp() {
+      document.getElementById("my-popup").style.display="block";
+      var timeleft = 20;
+      var downloadTimer = setInterval(function(){
+        if(timeleft <= 0){
+          hidePopUp();
+          clearInterval(downloadTimer);
+        }
+         else {
+          document.getElementById("my-popup").innerHTML = "Opponent disconnected - "  + timeleft;
+        }
+        timeleft -= 1;
+      }, 1000);
+    }
+
+    let hidePopUp = () => {
+      document.getElementById("my-popup").style.display="none";
+    }
   }
+  
 
   sendMove(row, column) {
     this.isConnected.then(() => {
@@ -729,27 +754,5 @@ export class BoardComponent implements OnInit {
         })
         .catch((err) => console.error(err));
     });
-
-    
   }
-
-  public get tables() {
-    return gameData.data.data.gameTables;
-  }
-
-  // reconnect(gameId) {
-  //   this.isConnected.then(() => {
-  //     this.connection
-  //       .invoke('OnReconnected', {
-  //         GameId: gameId
-  //       })
-  //       .then(() => {
-  //         gameData.data.data.activeGame = gameId;
-  //       });
-  //     this.route.navigateByUrl('/board').catch((err) => console.error(err));
-  //     console.warn(gameId);
-  //   });
-  // }
 }
-
-

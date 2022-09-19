@@ -17,6 +17,17 @@ export class LobbyComponent implements OnInit {
   submitted = true;
   joinDisabled = true;
 
+  yourName = 'Metiva';
+  opponentName = 'Gela';
+  yourScore = 2;
+  opponentScore = 1;
+  boardSizes = 9;
+  targetScore = 3;
+  winnerName = 'Metiva';
+  drawHistory = [1, 0, 0, -1, 1, 0, -1, 1, 0];
+  draw = ['X', 'O', 'X',
+          'O', 'X', 'O',
+          'X', 'O', 'X'];
 
   boardSize = [
     { id: 3, name: '3x3', cellNumber: 9 },
@@ -72,75 +83,99 @@ export class LobbyComponent implements OnInit {
           ) {
           }
         })[0];
+      });
 
-        gameData.data.setboardSize(response[0].boardSize);
-        gameData.data.setScore(response[0].targetScore);
+      this.connection.on('gamesforreconnect', (gamesArray) => {
+        gameData.data.data.joinable = gamesArray;
+        gamesArray.filter((player) => {
+          if (
+            player.playerOne.userName == gameData.data.data.user.userName ||
+            player.playerTwo.userName == gameData.data.data.user.userName
+          ) {
+            gameData.data.data.activeGame = player.gameId;
+          }
+        })[0];
+        gameData.data.setboardSize(gamesArray[0].boardSize);
+        gameData.data.setScore(gamesArray[0].targetScore);
         this.ref.detectChanges();
-        console.warn(response);
+        console.warn(gamesArray);
       });
 
       this.connection.on('getcurrentgame', (response, playerId) => {
-        response.playerOne.userName == gameData.data.data.playerOne;
-        response.playerTwo.userName == gameData.data.data.playerTwo;
-
-
-        console.warn(response, playerId);
+          gameData.data.setboardSize(response.boardSize);
+          gameData.data.setScore(response.targetScore);
+          gameData.data.data.first = response.playerOne.userName;
+          gameData.data.data.sec = response.playerTwo.userName;
+          this.route.navigateByUrl('/board').catch((err) => console.error(err));
+          this.ref.detectChanges();
+        console.warn(response, playerId, gameData.data.data.first, gameData.data.data.sec);
       });
 
-      this.connection.on('ongamejoin', (errorCode, gameId, errMessage, username) => {
-        console.warn(errorCode, gameId, errMessage, username);
-      });
-
-      this.connection.on('onreconnected',(joinableList, dict, userId) => {
+      this.connection.on('onreconnected', (joinableList, dict, userId) => {
         gameData.data.data.joinable = joinableList;
         this.ref.detectChanges();
-        console.warn(joinableList, dict, userId)
-      })
-
+        console.warn(joinableList, dict, userId);
+      });
 
       this.connection.on('getmovehistory', (moveList, userName) => {
-        console.warn(moveList, userName)
-      })
-
-      this.connection.on(
-        'nextturn',
-        (response, message, row, column, value) => {}
-      );
+        console.warn(moveList, userName);
+      });
 
       this.connection.on('matchstart', (gameId) => {
-        console.warn(gameId);
+        // console.warn(gameId);
       });
 
       this.connection.on('ongamecreate', (errorCode, errorMessage) => {
         this.ref.detectChanges();
+        console.warn(errorCode, errorMessage);
       });
+
+      this.connection.on('gethistory', (series) => {
+        gameData.data.data.gamesHistory = series;
+        console.warn(series);
+      });
+
+      this.connection.on('ongamejoin',(errorCode, gameId, errMessage, username) => {
+          console.warn(errorCode, gameId, errMessage, username);
+        }
+      );
+
+      this.connection.on('ongamerejoin',(errorCode,errMessage,gamesArray,movesArray,player,currentPlId
+        ) => {
+          gameData.data.data.rejoinedPlayer = player;
+          gameData.data.data.movesHistory = movesArray;
+          gameData.data.data.playerOne = gamesArray.playerOne.userName;
+          gameData.data.data.playerTwo = gamesArray.playerTwo.userName;
+          gameData.data.data.firstpoint = gamesArray.playerOneScore;
+          gameData.data.data.secpoint = gamesArray.playerTwoScore;
+          console.warn(gameData.data.data.firstpoint, gameData.data.data.secpoint)
+          console.warn(
+            errorCode,
+            errMessage,
+            gamesArray,
+            movesArray,
+            player,
+            currentPlId
+          );
+        }
+      );
     }
   }
 
   reconnect(gameId) {
     this.isConnected.then(() => {
       this.connection
-        .invoke('OnReconnected', {
-          GameId: gameId
+        .invoke('Reconnect', {
+          GameId: gameId,
         })
         .then(() => {
           gameData.data.data.activeGame = gameId;
+          gameData.data.data.playerTwo = gameData.data.data.user.userName;
         });
       this.route.navigateByUrl('/board').catch((err) => console.error(err));
-      console.warn(gameId);
+      gameData.data.data.rejoined = true;
+      console.warn(gameId, gameData.data.data.rejoined, gameData.data.data.user.userName);
     });
-  }
-
-  drawMoves(moveList) {
-    for (let i = 0; i < moveList; i++) {
-      if(i === 0) {
-        console.log(i + 'is O')
-      } else if (i === 1) {
-        console.log(i + 'is X')
-      } else if (i === -1) {
-        console.log(i + 'is empty')
-      }
-    }
   }
 
   sendData() {
@@ -151,13 +186,16 @@ export class LobbyComponent implements OnInit {
           ScoreTarget: gameData.data.data.scoreToPlay,
         })
         .catch((err) => console.error(err));
-        gameData.data.data.playerOne = gameData.data.data.user.userName;
+      gameData.data.data.playerOne = gameData.data.data.user.userName;
       if (
         gameData.data.data.boardSize > 0 &&
         gameData.data.data.scoreToPlay > 0
       ) {
         this.route.navigateByUrl('/board');
-      } else {
+      } else if (
+        gameData.data.data.boardSize === 0 ||
+        gameData.data.data.scoreToPlay === 0
+      ) {
         this.errorMessage = 'Both parameters are required';
         this.submitted = false;
       }
@@ -168,22 +206,24 @@ export class LobbyComponent implements OnInit {
     this.isConnected.then(() => {
       this.connection
         .invoke('JoinToGame', {
-          GameId: gameId
+          GameId: gameId,
         })
         .then(() => {
           gameData.data.data.activeGame = gameId;
-          gameData.data.data.playerTwo = gameData.data.data.user.userName
+          gameData.data.data.playerTwo = gameData.data.data.user.userName;
         });
-      this.route.navigateByUrl('/board').catch((err) => console.error(err));
-      // console.warn(gameId);
+      console.warn(gameId);
     });
   }
-
-
 
   public get tables() {
     return gameData.data.data.gameTables;
   }
+
+  public get games() {
+    return gameData.data.data.gamesHistory;
+  }  
+
 
   public get lists() {
     return gameData.data.data.joinable;

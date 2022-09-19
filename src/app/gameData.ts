@@ -9,15 +9,24 @@ class GameData {
             userName: null
         },
         gameTables: [],
+        gamesHistory: [],
         joinable: [],
+        movesHistory: [],
         posX:0,
         posY:0,
         activeGame: 0,
+        reconnectedGame: 0,
         isDone: false,
         playerOne: null,
         playerTwo: null,
-        pl1: null,
-        pl2: null
+        rejoinedPlayer: null,
+        pl1: 0,
+        pl2: 0,
+        rejoined: false,
+        first: '',
+        sec: '',
+        firstpoint: 0,
+        secpoint: 0,
     }
 
 

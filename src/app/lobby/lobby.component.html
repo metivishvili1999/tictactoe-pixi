@@ -39,7 +39,7 @@
               {{ score.score }}
             </option>
           </select>
-            <button (click)="sendData()"  class="btn btn-primary" type="submit">
+            <button (click)="sendData()" class="btn btn-primary" type="submit">
               Create Match
             </button>
 
@@ -50,26 +50,72 @@
       </div>
     </div>
   </div>
-  <div class="matchList">
-    <div class="matchs" *ngFor="let match of tables">
-      <div class="match-info">
-        <h3>Status: {{ match.stateId }}</h3>
-        <h3>Board Size:{{ match.boardSize }}</h3>
-        <h3>Score: {{ match.targetScore }}</h3>
-      </div>
-      <div class="join">
-        <button (click)="joinGame(match.gameId)" *ngIf="joinDisabled">Join</button>
-      </div>
-    </div>
-    <!-- <div class="matchs" *ngFor="let match of lists">
-      <div class="match-info">
-        <h3>Status: {{ match.stateId }}</h3>
-        <h3>Board Size:{{ match.boardSize }}</h3>
-        <h3>Score: {{ match.targetScore }}</h3>
-      </div>
-      <div class="join">
-        <button (click)="reconnect(match.gameId)">Join</button>
-      </div>
-    </div> -->
-  </div>
+  <ul class="tabs" role="tablist">
+    <li>
+        <input type="radio" name="tabs" id="tab1" checked />
+        <label for="tab1" 
+               role="tab" 
+               aria-selected="true" 
+               aria-controls="panel1" 
+               tabindex="0"
+               class="tab1">Games</label>
+        <div id="tab-content1" 
+             class="tab-content" 
+             role="tabpanel" 
+             aria-labelledby="description" 
+             aria-hidden="false">
+              <div class="matchs" *ngFor="let match of tables">
+                <div class="match-info">
+                  <h3>Status: {{ match.stateId }}</h3>
+                  <h3>Board Size:{{ match.boardSize }}</h3>
+                  <h3>Score: {{ match.targetScore }}</h3>
+                </div>
+                <div class="join">
+                  <button (click)="joinGame(match.gameId)">Join</button>
+                </div>
+              </div>
+              <div class="matchs" *ngFor="let match of lists">
+                <div class="match-info">
+                  <h3>Status: {{ match.stateId }}</h3>
+                  <h3>Board Size:{{ match.boardSize }}</h3>
+                  <h3>Score: {{ match.targetScore }}</h3>
+                </div>
+                <div class="join">
+                  <button (click)="reconnect(match.gameId)">Rejoin</button>
+                </div>
+              </div>
+        </div>
+    </li>
+  
+    <li>
+        <input type="radio" name="tabs" id="tab2" />
+        <label for="tab2" role="tab" aria-selected="false" aria-controls="panel2" 
+               tabindex="0" class="tab2">History</label>
+        <div id="tab-content2" 
+             class="tab-content"
+             role="tabpanel" 
+             aria-labelledby="specification" 
+             aria-hidden="true">
+             <div class="history">
+              <div class="games">
+                <div class="games-info">
+                  <h3 class="hp">You/Opp</h3>
+                  <h3>Scores</h3>
+                  <h3>size</h3>
+                  <h3>Target</h3>
+                  <h3>Winner</h3>
+                </div>
+                <div class="game-info" *ngFor="let game of games" >
+                  <h3>{{ game.yourName }} / {{ game.opponentName }}</h3>
+                  <h3>{{ game.yourScore }} / {{ game.opponentScore }} </h3>
+                  <h3>{{ game.boardSize }} </h3>
+                  <h3>{{ game.targetScore }} </h3>
+                  <h3>{{ game.winnerName }} </h3>
+                </div>
+              </div>
+            </div>
+        </div>
+
+    </li>
+  </ul>
 </div>
