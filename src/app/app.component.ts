@@ -9,13 +9,26 @@ import { Router } from '@angular/router';
   styleUrls: ['./app.component.css'],
 })
 export class AppComponent implements OnInit {
+  currentUser: any;
   userName?: string;
+  user = gameData.data.data.user
+  username?: string;
+  isLoggedInn = true;
+  
+  
   constructor(
     private route: Router,
     private tokenStorageService: TokenStorageService
   ) {}
 
-  ngOnInit() {}
+  ngOnInit():void {
+    const user = this.tokenStorageService.getUser();
+    this.username = user.userName;
+    gameData.data.data.user.sessionId = localStorage.getItem('sessionToken');
+    gameData.data.data.user.userName = localStorage.getItem('userName');
+
+  }
+  
 
   public get isLoggedIn() {
     return gameData.data.data.user.sessionId != null;
@@ -23,13 +36,16 @@ export class AppComponent implements OnInit {
 
   logout(): void {
     this.tokenStorageService.signOut();
+    localStorage.removeItem('sessionToken');
+    localStorage.removeItem('userName');
     window.location.reload();
   }
 
+
   home(): void {
-    // window.location.reload();
     this.route.navigateByUrl('/home');
   }
 
   title = 'tictactoe';
 }
+

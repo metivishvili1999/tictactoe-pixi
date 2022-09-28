@@ -17,18 +17,6 @@ export class LobbyComponent implements OnInit {
   submitted = true;
   joinDisabled = true;
 
-  yourName = 'Metiva';
-  opponentName = 'Gela';
-  yourScore = 2;
-  opponentScore = 1;
-  boardSizes = 9;
-  targetScore = 3;
-  winnerName = 'Metiva';
-  drawHistory = [1, 0, 0, -1, 1, 0, -1, 1, 0];
-  draw = ['X', 'O', 'X',
-          'O', 'X', 'O',
-          'X', 'O', 'X'];
-
   boardSize = [
     { id: 3, name: '3x3', cellNumber: 9 },
     { id: 4, name: '4x4', cellNumber: 16 },
@@ -59,14 +47,16 @@ export class LobbyComponent implements OnInit {
       score: [null],
     });
 
+
     this.connection = new signalR.HubConnectionBuilder()
-      .configureLogging(signalR.LogLevel.Information)
-      .withUrl('http://172.25.36.202:8085/signalr', {
-        accessTokenFactory: () => gameData.data.data.user.sessionId,
-      })
-      .build();
+    .configureLogging(signalR.LogLevel.Information)
+    .withUrl('http://172.25.36.202:8085/signalr', {
+      accessTokenFactory: () => gameData.data.data.user.sessionId,
+    })
+    .build();
 
     if (gameData.data.data.user.sessionId != null) {
+      
       this.isConnected = this.connection
         .start()
         .then(function () {})
@@ -98,47 +88,27 @@ export class LobbyComponent implements OnInit {
         gameData.data.setboardSize(gamesArray[0].boardSize);
         gameData.data.setScore(gamesArray[0].targetScore);
         this.ref.detectChanges();
-        console.warn(gamesArray);
       });
 
       this.connection.on('getcurrentgame', (response, playerId) => {
           gameData.data.setboardSize(response.boardSize);
           gameData.data.setScore(response.targetScore);
+          gameData.data.data.playerOne = response.playerOne.userName;
+          gameData.data.data.playerTwo = response.playerTwo.userName;
           gameData.data.data.first = response.playerOne.userName;
           gameData.data.data.sec = response.playerTwo.userName;
           this.route.navigateByUrl('/board').catch((err) => console.error(err));
           this.ref.detectChanges();
-        console.warn(response, playerId, gameData.data.data.first, gameData.data.data.sec);
       });
 
       this.connection.on('onreconnected', (joinableList, dict, userId) => {
         gameData.data.data.joinable = joinableList;
         this.ref.detectChanges();
-        console.warn(joinableList, dict, userId);
-      });
-
-      this.connection.on('getmovehistory', (moveList, userName) => {
-        console.warn(moveList, userName);
-      });
-
-      this.connection.on('matchstart', (gameId) => {
-        // console.warn(gameId);
-      });
-
-      this.connection.on('ongamecreate', (errorCode, errorMessage) => {
-        this.ref.detectChanges();
-        console.warn(errorCode, errorMessage);
       });
 
       this.connection.on('gethistory', (series) => {
         gameData.data.data.gamesHistory = series;
-        console.warn(series);
       });
-
-      this.connection.on('ongamejoin',(errorCode, gameId, errMessage, username) => {
-          console.warn(errorCode, gameId, errMessage, username);
-        }
-      );
 
       this.connection.on('ongamerejoin',(errorCode,errMessage,gamesArray,movesArray,player,currentPlId
         ) => {
@@ -148,15 +118,6 @@ export class LobbyComponent implements OnInit {
           gameData.data.data.playerTwo = gamesArray.playerTwo.userName;
           gameData.data.data.firstpoint = gamesArray.playerOneScore;
           gameData.data.data.secpoint = gamesArray.playerTwoScore;
-          console.warn(gameData.data.data.firstpoint, gameData.data.data.secpoint)
-          console.warn(
-            errorCode,
-            errMessage,
-            gamesArray,
-            movesArray,
-            player,
-            currentPlId
-          );
         }
       );
     }
@@ -172,10 +133,10 @@ export class LobbyComponent implements OnInit {
           gameData.data.data.activeGame = gameId;
           gameData.data.data.playerTwo = gameData.data.data.user.userName;
         });
-      this.route.navigateByUrl('/board').catch((err) => console.error(err));
+        this.route.navigateByUrl('/board');
+        // window.open(`/board?boardSize=${gameData.data.data.boardSize}&scoreToPlay=${gameData.data.data.scoreToPlay}`, '_blank').focus()
       gameData.data.data.rejoined = true;
-      console.warn(gameId, gameData.data.data.rejoined, gameData.data.data.user.userName);
-    });
+});
   }
 
   sendData() {
@@ -184,6 +145,7 @@ export class LobbyComponent implements OnInit {
         .invoke('CreateGame', {
           BoardSize: gameData.data.data.boardSize,
           ScoreTarget: gameData.data.data.scoreToPlay,
+        }).then (() => {
         })
         .catch((err) => console.error(err));
       gameData.data.data.playerOne = gameData.data.data.user.userName;
@@ -191,6 +153,7 @@ export class LobbyComponent implements OnInit {
         gameData.data.data.boardSize > 0 &&
         gameData.data.data.scoreToPlay > 0
       ) {
+        // window.open(`/board?boardSize=${gameData.data.data.boardSize}&scoreToPlay=${gameData.data.data.scoreToPlay}`, '_blank').focus();
         this.route.navigateByUrl('/board');
       } else if (
         gameData.data.data.boardSize === 0 ||
@@ -209,10 +172,10 @@ export class LobbyComponent implements OnInit {
           GameId: gameId,
         })
         .then(() => {
+          // window.open(`/board?boardSize=${gameData.data.data.boardSize}&scoreToPlay=${gameData.data.data.scoreToPlay}`, '_blank').focus();
+          // window.open('/board', '_blank').focus();
           gameData.data.data.activeGame = gameId;
-          gameData.data.data.playerTwo = gameData.data.data.user.userName;
         });
-      console.warn(gameId);
     });
   }
 
@@ -223,7 +186,6 @@ export class LobbyComponent implements OnInit {
   public get games() {
     return gameData.data.data.gamesHistory;
   }  
-
 
   public get lists() {
     return gameData.data.data.joinable;

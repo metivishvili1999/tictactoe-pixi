@@ -20,16 +20,15 @@
     color: wheat;
     font-size: 30px;
     text-align: center;
-	Width: 600px;
-	Height: 100px;
-	Background: #1c1d1e !important;
-	Box-sizing: border-box; 
-	Padding: 40px;
+	width: 600px;
+	height: 100px;
+	background: #1c1d1e !important;
+	box-sizing: border-box; 
+	padding: 40px;
     border-radius: 15px;
-	Position:absolute;
+	position:absolute;
 	top:18%;
 	left:50%;
-	Transform: translate(-50%,-50%);
-
+	transform: translate(-50%,-50%);
 	display:none;
 }

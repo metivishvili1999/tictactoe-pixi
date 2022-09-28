@@ -1,4 +1,6 @@
 import { Injectable } from '@angular/core';
+import * as gameData from '../gameData';
+
 const TOKEN_KEY = 'auth-token';
 const USER_KEY = 'auth-user';
 
@@ -12,6 +14,8 @@ export class TokenStorageService {
   constructor() { }
   signOut(): void {
     window.sessionStorage.clear();
+    localStorage.removeItem(gameData.data.data.user.sessionId);
+    localStorage.removeItem(gameData.data.data.user.userName)
   }
   public saveToken(token : string): void {
     window.sessionStorage.removeItem(TOKEN_KEY);
@@ -33,3 +37,4 @@ export class TokenStorageService {
     return {};
   }
 }
+

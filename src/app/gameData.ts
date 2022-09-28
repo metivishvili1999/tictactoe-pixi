@@ -27,6 +27,8 @@ class GameData {
         sec: '',
         firstpoint: 0,
         secpoint: 0,
+        gamePlayed: false,
+        delCanvas: false
     }
 
 
@@ -41,4 +43,4 @@ class GameData {
 
 const data = new GameData();
 
- export { data};
+ export { data };
