@@ -4,7 +4,6 @@ import * as gameData from '../gameData';
 import { __values } from 'tslib';
 import * as signalR from '@microsoft/signalr';
 import { Router } from '@angular/router';
-
 @Component({
   selector: 'app-lobby',
   templateUrl: './lobby.component.html',
@@ -35,6 +34,9 @@ export class LobbyComponent implements OnInit {
   public connection: signalR.HubConnection;
   public isConnected: any;
   public gameState: number;
+
+  public boardS = Number(gameData.data.data.boardSize)
+  public scoreT = Number(gameData.data.data.scoreToPlay)
 
   constructor(
     private route: Router,
@@ -97,6 +99,8 @@ export class LobbyComponent implements OnInit {
           gameData.data.data.playerTwo = response.playerTwo.userName;
           gameData.data.data.first = response.playerOne.userName;
           gameData.data.data.sec = response.playerTwo.userName;
+          localStorage.setItem('boardsize', response.boardSize);
+          localStorage.setItem('targetscore', response.targetScore);
           this.route.navigateByUrl('/board').catch((err) => console.error(err));
           this.ref.detectChanges();
       });
@@ -134,8 +138,7 @@ export class LobbyComponent implements OnInit {
           gameData.data.data.playerTwo = gameData.data.data.user.userName;
         });
         this.route.navigateByUrl('/board');
-        // window.open(`/board?boardSize=${gameData.data.data.boardSize}&scoreToPlay=${gameData.data.data.scoreToPlay}`, '_blank').focus()
-      gameData.data.data.rejoined = true;
+        gameData.data.data.rejoined = true;
 });
   }
 
@@ -144,25 +147,30 @@ export class LobbyComponent implements OnInit {
       this.connection
         .invoke('CreateGame', {
           BoardSize: gameData.data.data.boardSize,
-          ScoreTarget: gameData.data.data.scoreToPlay,
-        }).then (() => {
+          ScoreTarget: gameData.data.data.scoreToPlay
+ }).then (() => {
+   localStorage.setItem('boardsize', gameData.data.data.boardSize);
+   localStorage.setItem('targetscore', gameData.data.data.scoreToPlay);
         })
         .catch((err) => console.error(err));
       gameData.data.data.playerOne = gameData.data.data.user.userName;
       if (
-        gameData.data.data.boardSize > 0 &&
-        gameData.data.data.scoreToPlay > 0
+        Number(gameData.data.data.boardSize) > 0 &&
+        Number(gameData.data.data.scoreToPlay) > 0
       ) {
-        // window.open(`/board?boardSize=${gameData.data.data.boardSize}&scoreToPlay=${gameData.data.data.scoreToPlay}`, '_blank').focus();
-        this.route.navigateByUrl('/board');
+        setTimeout(() => {
+          this.route.navigateByUrl('/board')
+        }, 500)
+        
       } else if (
-        gameData.data.data.boardSize === 0 ||
-        gameData.data.data.scoreToPlay === 0
+        Number(gameData.data.data.boardSize) === 0 ||
+        Number(gameData.data.data.scoreToPlay) === 0
       ) {
         this.errorMessage = 'Both parameters are required';
         this.submitted = false;
       }
     });
+    console.warn(gameData.data.data.gameTables)
   }
 
   joinGame(gameId) {
@@ -172,8 +180,6 @@ export class LobbyComponent implements OnInit {
           GameId: gameId,
         })
         .then(() => {
-          // window.open(`/board?boardSize=${gameData.data.data.boardSize}&scoreToPlay=${gameData.data.data.scoreToPlay}`, '_blank').focus();
-          // window.open('/board', '_blank').focus();
           gameData.data.data.activeGame = gameId;
         });
     });

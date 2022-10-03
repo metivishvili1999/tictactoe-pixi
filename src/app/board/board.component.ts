@@ -22,6 +22,7 @@ export class BoardComponent implements OnInit {
   public posX;
   public posY;
   public app;
+
   isFilled: boolean = false;
 
   clicked: boolean = true;
@@ -35,8 +36,8 @@ export class BoardComponent implements OnInit {
 
   constructor(private route: Router, private ref: ChangeDetectorRef) {}
 
-  
   ngOnInit(): void {
+
 
     this.connection = new signalR.HubConnectionBuilder()
     .configureLogging(signalR.LogLevel.Information)
@@ -55,7 +56,7 @@ export class BoardComponent implements OnInit {
 
       this.connection.on('getallgame', (response) => {
         gameData.data.data.gameTables = response;
-
+        console.warn(gameData.data.data.gameTables)
         response.filter((player) => {
           if (
             player.playerOne.userName == gameData.data.data.user.userName ||
@@ -63,12 +64,14 @@ export class BoardComponent implements OnInit {
           ) {
             gameData.data.data.activeGame = player.gameId;
             this.gameState = player.stateId;
+            // localStorage.setItem('boardsize', player.boardSize);
+            // localStorage.setItem('targetscore', player.targetScore);
+            console.warn(player)
           }
         })[0];
         if (response) {
-          gameData.data.setboardSize(response[0].boardSize);
-          gameData.data.setScore(response[0].targetScore);
           this.ref.detectChanges();
+          
         }
       });
 
@@ -80,14 +83,14 @@ export class BoardComponent implements OnInit {
             changeTurnImage();
           } else if (response === -1) {
             popup();
+          } else if (response === -101) {
+            takenPopup();
           }
         }
       );
 
       this.connection.on('gameend',(gameId, firstPlayerScore, secondPlayerScore, firstplayer, secondplayer, message) => {
         if (firstPlayerScore === gameData.data.data.scoreToPlay) {
-          // gameData.data.data.boardSize = 0;
-          // gameData.data.data.scoreToPlay = 0;
           this.connection.stop();
           gameData.data.data.firstpoint = 0;
           gameData.data.data.secpoint = 0;
@@ -105,10 +108,11 @@ export class BoardComponent implements OnInit {
                 endOfSeries();
                 turnX = !turnX;
               }
+          gameData.data.data.rejoined = false;
+          gameData.data.data.sec = null;
+          gameData.data.data.first = null;
         }
         if (secondPlayerScore === gameData.data.data.scoreToPlay) {
-          // gameData.data.data.boardSize = 0;
-          // gameData.data.data.scoreToPlay = 0;
           this.connection.stop();
           gameData.data.data.firstpoint = 0;
           gameData.data.data.secpoint = 0;
@@ -130,7 +134,12 @@ export class BoardComponent implements OnInit {
               endOfSeries();
               turnX = !turnX;
             }
+          gameData.data.data.rejoined = false;
+          gameData.data.data.sec = null;
+          gameData.data.data.first = null;
         }
+        // gameData.data.data.boardSize = 0;
+        // gameData.data.data.scoreToPlay = 0;
       }
 
     );
@@ -238,7 +247,6 @@ export class BoardComponent implements OnInit {
           seriesWinnerText();
           endOfSeries();
           turnX = !turnX;
-          console.warn(code)
         }
 
         this.ref.detectChanges();
@@ -266,7 +274,6 @@ export class BoardComponent implements OnInit {
         }
       );
     }
-
 
     let Application = pixi.Application,
       Container = pixi.Container,
@@ -371,8 +378,8 @@ export class BoardComponent implements OnInit {
 
     /* ---------- GAME INFO ---------- */
     setTimeout(() => {
-      drawMovesHistory();
       if(gameData.data.data.rejoined === true) {
+        drawMovesHistory();
         updatePlayersScores();
       }
     }, 100);
@@ -419,11 +426,14 @@ export class BoardComponent implements OnInit {
       waitForOpp.visible = false;
     }
 
+    if(gameData.data.data.rejoined === true && gameData.data.data.playerOne) {
+      waitForOpp.visible = false;
+    }
 
     if (gameData.data.data.playerOne === gameData.data.data.user.userName) {
       firstPlayerName.visible = true;
     }
-    if(gameData.data.data.sec ) {
+    if(gameData.data.data.sec && gameData.data.data.rejoined !== true ) {
       let yourOpp = new Text('You are playing against ' + gameData.data.data.first, style4);
       gameWrapper.addChild(yourOpp);
       yourOpp.anchor.x = 0.5;
@@ -477,9 +487,16 @@ export class BoardComponent implements OnInit {
     turnOImage.alpha = 1;
     turnOImage.visible = false;
 
-    let boardsize = gameData.data.data.boardSize;
-    let scoretoplay = gameData.data.data.scoreToPlay;
+
+    let board = localStorage.getItem('boardsize')
+    let scoreT = localStorage.getItem('targetscore')
+    let boardsize = Number(board);
+    let scoretoplay = Number(scoreT)
+    // let boardsize = gameData.data.data.boardSize;
+    // let scoretoplay = gameData.data.data.scoreToPlay;
     let squareSize = 400 / Math.sqrt(boardsize);
+
+    console.warn(boardsize, scoretoplay)
 
     let targetScore = (scoretoplay) => {
       var tScore = new Text(scoretoplay, style1);
@@ -536,9 +553,11 @@ export class BoardComponent implements OnInit {
     };
 
     // CREATING BOARD WITH CHOSEN PARAMETERS
-    addCells(boardsize);
-    targetScore(scoretoplay);
-    gameWrapper.visible = true;
+
+      addCells(boardsize);
+      targetScore(scoretoplay);
+      gameWrapper.visible = true;
+
 
 
 
@@ -567,8 +586,6 @@ export class BoardComponent implements OnInit {
     };
 
     let endOfSeries = () => {
-      // gameData.data.data.firstpoint = 0;
-      // gameData.data.data.secpoint = 0;
       let lobby = new Text('Lobby', series);
       seriesWinnerCont.addChild(lobby);
       lobby.anchor.x = 0.5;
@@ -743,11 +760,21 @@ export class BoardComponent implements OnInit {
       }, 700);
     };
 
+    let takenPopup = () => {
+      var pops = new Text('This cell is Filled!', style1);
+      pops.anchor.x = 0.5;
+      pops.position.set(227.5, 10);
+      gameWrapper.addChild(pops);
+      setTimeout(() => {
+        pops.visible = false;
+      }, 700);
+    };
+
     function showPopUp() {
       document.getElementById("my-popup").style.display="block";
-      var timeleft = 20;
-      var downloadTimer = setInterval(function(){
-        if(timeleft = 0){
+      let timeleft = 20;
+      let downloadTimer = setInterval(function(){
+        if(timeleft <= 0){
           document.getElementById("my-popup").style.display="none";
           clearInterval(downloadTimer);
         }
@@ -755,14 +782,14 @@ export class BoardComponent implements OnInit {
           document.getElementById("my-popup").innerHTML = "Opponent disconnected - "  + timeleft;
         }
         timeleft -= 1;
-      }, 1000);
+      }, 1200);
     }
 
     let hidePopUp = () => {
       document.getElementById("my-popup").style.display="none";
     }
-
   }
+
 
   ngOnDestroy(): void {
     this.app.destroy(true);

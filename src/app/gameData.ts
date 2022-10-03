@@ -2,8 +2,8 @@ class GameData {
     constructor(){}
     
     public data = {
-        boardSize: 0,
-        scoreToPlay: 0,
+        boardSize: '',
+        scoreToPlay: '',
         user:{
             sessionId: null,
             userName: null
@@ -32,11 +32,11 @@ class GameData {
     }
 
 
-    public setboardSize(size: number):void {
+    public setboardSize(size: any):void {
         this.data.boardSize = size;
     }
 
-    public setScore(score: number):void {
+    public setScore(score: any):void {
       this.data.scoreToPlay = score;
   }
 }
@@ -44,3 +44,8 @@ class GameData {
 const data = new GameData();
 
  export { data };
+
+
+
+//  BoardSize: localStorage.getItem('boardsize') ,
+//  ScoreTarget: localStorage.getItem('targetscore'),
