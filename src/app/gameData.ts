@@ -2,8 +2,8 @@ class GameData {
     constructor(){}
     
     public data = {
-        boardSize: '',
-        scoreToPlay: '',
+        boardSize: 0,
+        scoreToPlay: 0,
         user:{
             sessionId: null,
             userName: null
@@ -15,20 +15,14 @@ class GameData {
         posX:0,
         posY:0,
         activeGame: 0,
-        reconnectedGame: 0,
         isDone: false,
         playerOne: null,
         playerTwo: null,
-        rejoinedPlayer: null,
-        pl1: 0,
-        pl2: 0,
         rejoined: false,
         first: '',
         sec: '',
         firstpoint: 0,
-        secpoint: 0,
-        gamePlayed: false,
-        delCanvas: false
+        secpoint: 0
     }
 
 
@@ -44,8 +38,3 @@ class GameData {
 const data = new GameData();
 
  export { data };
-
-
-
-//  BoardSize: localStorage.getItem('boardsize') ,
-//  ScoreTarget: localStorage.getItem('targetscore'),

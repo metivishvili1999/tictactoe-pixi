@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { Sprite } from 'pixi.js';
 import * as pixi from 'pixi.js';
 import * as gameData from '../gameData';
@@ -11,9 +11,8 @@ import { FormGroup } from '@angular/forms';
   templateUrl: './board.component.html',
   styleUrls: ['./board.component.css'],
 })
-export class BoardComponent implements OnInit {
+export class BoardComponent implements OnInit, OnDestroy {
   items: any;
-  gameState;
   turnIcon;
   public bannerW;
   public bannerL;
@@ -22,6 +21,8 @@ export class BoardComponent implements OnInit {
   public posX;
   public posY;
   public app;
+
+  downloadTimer: any;
 
   isFilled: boolean = false;
 
@@ -34,17 +35,28 @@ export class BoardComponent implements OnInit {
   public isConnected: any;
   gameData: any;
 
-  constructor(private route: Router, private ref: ChangeDetectorRef) {}
+  constructor(private route: Router, private ref: ChangeDetectorRef) {
+    window.onbeforeunload = () => {
+      localStorage.setItem('reload', 'true');
+    };
+    window.onload = () => {
+      if (localStorage.getItem('reload') !== null) {
+        this.route.navigateByUrl('/lobby');
+        localStorage.removeItem('reload');
+        gameData.data.data.scoreToPlay = 0;
+        gameData.data.data.boardSize = 0;
+        gameData.data.data.rejoined = false;
+      }
+    };
+  }
 
   ngOnInit(): void {
-
-
     this.connection = new signalR.HubConnectionBuilder()
-    .configureLogging(signalR.LogLevel.Information)
-    .withUrl('http://172.25.36.202:8085/signalr', {
-      accessTokenFactory: () => gameData.data.data.user.sessionId,
-    })
-    .build();
+      .configureLogging(signalR.LogLevel.Information)
+      .withUrl('http://172.25.36.202:8085/signalr', {
+        accessTokenFactory: () => gameData.data.data.user.sessionId,
+      })
+      .build();
 
     if (gameData.data.data.user.sessionId != null) {
       this.isConnected = this.connection
@@ -54,25 +66,15 @@ export class BoardComponent implements OnInit {
           return console.error(err.toString());
         });
 
-      this.connection.on('getallgame', (response) => {
-        gameData.data.data.gameTables = response;
-        console.warn(gameData.data.data.gameTables)
-        response.filter((player) => {
-          if (
-            player.playerOne.userName == gameData.data.data.user.userName ||
-            player.playerTwo.userName == gameData.data.data.user.userName
-          ) {
-            gameData.data.data.activeGame = player.gameId;
-            this.gameState = player.stateId;
-            // localStorage.setItem('boardsize', player.boardSize);
-            // localStorage.setItem('targetscore', player.targetScore);
-            console.warn(player)
+      this.connection.on('getcurrentgame', (response) => {
+        console.warn(response)
+        if ( response.length !== null) {
+          gameData.data.data.activeGame = response.gameId;
+          if (response.playerOne.userName == gameData.data.data.user.userName) {
+            turnX
           }
-        })[0];
-        if (response) {
-          this.ref.detectChanges();
-          
         }
+
       });
 
       this.connection.on('nextturn',(response, gameid, message, row, column, value) => {
@@ -89,40 +91,43 @@ export class BoardComponent implements OnInit {
         }
       );
 
-      this.connection.on('gameend',(gameId, firstPlayerScore, secondPlayerScore, firstplayer, secondplayer, message) => {
-        if (firstPlayerScore === gameData.data.data.scoreToPlay) {
-          this.connection.stop();
-          gameData.data.data.firstpoint = 0;
-          gameData.data.data.secpoint = 0;
+      this.connection.on('gameend',(gameId,firstPlayerScore,secondPlayerScore,firstplayer,secondplayer,message) => {
+          if (firstPlayerScore === gameData.data.data.scoreToPlay) {
+            this.connection.stop();
+            gameData.data.data.firstpoint = 0;
+            gameData.data.data.secpoint = 0;
             removeCells();
             gameWrapper.visible = false;
             seriesWinnerCont.visible = true;
-              if (firstplayer === gameData.data.data.user.userName) {
-                this.bannerW = true;
-                seriesWinnerText();
-                endOfSeries();
-                turnX = !turnX;
-              } else if (secondplayer === gameData.data.data.user.userName) {
-                this.bannerL = true;
-                seriesLoserText();
-                endOfSeries();
-                turnX = !turnX;
-              }
-          gameData.data.data.rejoined = false;
-          gameData.data.data.sec = null;
-          gameData.data.data.first = null;
-        }
-        if (secondPlayerScore === gameData.data.data.scoreToPlay) {
-          this.connection.stop();
-          gameData.data.data.firstpoint = 0;
-          gameData.data.data.secpoint = 0;
-          console.warn(gameData.data.data.firstpoint, gameData.data.data.secpoint)
-          seriesWinnerCont.visible = true;
-          gameWrapper.visible = false;
-          winnerCont.visible = false;
-          loserCont.visible = false;
-          tieCont.visible = false;
-          removeCells();
+            if (firstplayer === gameData.data.data.user.userName) {
+              this.bannerW = true;
+              seriesWinnerText();
+              endOfSeries();
+              turnX = !turnX;
+            } else if (secondplayer === gameData.data.data.user.userName) {
+              this.bannerL = true;
+              seriesLoserText();
+              endOfSeries();
+              turnX = !turnX;
+            }
+            gameData.data.data.rejoined = false;
+            gameData.data.data.sec = null;
+            gameData.data.data.first = null;
+          }
+          if (secondPlayerScore === gameData.data.data.scoreToPlay) {
+            this.connection.stop();
+            gameData.data.data.firstpoint = 0;
+            gameData.data.data.secpoint = 0;
+            console.warn(
+              gameData.data.data.firstpoint,
+              gameData.data.data.secpoint
+            );
+            seriesWinnerCont.visible = true;
+            gameWrapper.visible = false;
+            winnerCont.visible = false;
+            loserCont.visible = false;
+            tieCont.visible = false;
+            removeCells();
             if (firstplayer === gameData.data.data.user.userName) {
               this.bannerL = true;
               seriesLoserText();
@@ -134,97 +139,103 @@ export class BoardComponent implements OnInit {
               endOfSeries();
               turnX = !turnX;
             }
-          gameData.data.data.rejoined = false;
-          gameData.data.data.sec = null;
-          gameData.data.data.first = null;
-        }
-        // gameData.data.data.boardSize = 0;
-        // gameData.data.data.scoreToPlay = 0;
-      }
-
-    );
-
-      this.connection.on('matchend',(gameId, firstPlayerScore, secondPlayerScore, firstplayer, secondplayer, message) => {
-        if (firstPlayerScore > gameData.data.data.firstpoint && firstPlayerScore !== gameData.data.data.scoreToPlay) {
-          gameData.data.data.firstpoint++;
-          turnOImage.visible = false;
-          turnXImage.visible = true;
-          removeCells();
-          updatePlayerOneScore();
-          updatePlayersScores();
-          if (firstplayer === gameData.data.data.user.userName) {
-            this.bannerW = true;
-            winnerCont.visible = true;
-            winnerText();
-            setTimeout(() => {
-              addCells(boardsize);
-              this.bannerW = false;
-              winnerCont.visible = false;
-              gameWrapper.visible = true;
-            }, 3000);
-          } else if (secondplayer === gameData.data.data.user.userName) {
-            this.bannerL = true;
-            loserCont.visible = true;
-            loserText();
-            setTimeout(() => {
-              addCells(boardsize);
-              this.bannerL = false;
-              loserCont.visible = false;
-              gameWrapper.visible = true;
-            }, 3000);
+            gameData.data.data.rejoined = false;
+            gameData.data.data.sec = null;
+            gameData.data.data.first = null;
           }
         }
+      );
 
-        if (secondPlayerScore > gameData.data.data.secpoint && secondPlayerScore !== gameData.data.data.scoreToPlay) {
-          gameData.data.data.secpoint++;
-          turnOImage.visible = false;
-          turnXImage.visible = true;
-          removeCells();
-          updatePlayerTwoScore();
-          updatePlayersScores();
-          if (firstplayer === gameData.data.data.user.userName) {
-            this.bannerL = true;
-            loserCont.visible = true;
-            loserText();
-            setTimeout(() => {
-              addCells(boardsize);
-              this.bannerL = false;
-              loserCont.visible = false;
-              gameWrapper.visible = true;
-            }, 3000);
-          } else if (secondplayer === gameData.data.data.user.userName) {
-            this.bannerW = true;
-            winnerCont.visible = true;
-            winnerText();
-            setTimeout(() => {
-              addCells(boardsize);
-              this.bannerW = false;
-              winnerCont.visible = false;
-              gameWrapper.visible = true;
-            }, 3000);
-          }
-        }
-
-        // THAT MEANS TIE
-        if (message.length === 11) {
-          if (gameData.data.data.playerOne === gameData.data.data.user.userName ||
-            gameData.data.data.playerTwo === gameData.data.data.user.userName) {
+      this.connection.on('matchend',(gameId, firstPlayerScore,secondPlayerScore,firstplayer,secondplayer,message) => {
+          if (
+            firstPlayerScore > gameData.data.data.firstpoint &&
+            firstPlayerScore !== gameData.data.data.scoreToPlay
+          ) {
+            gameData.data.data.firstpoint++;
             turnOImage.visible = false;
             turnXImage.visible = true;
             removeCells();
-            this.bannerD = true;
-            tieCont.visible = true;
-            tieText();
-            setTimeout(() => {
-              gameWrapper.visible = true;
-              addCells(boardsize);
-              this.bannerD = false;
-              tieCont.visible = false;
-            }, 3000);
+            updatePlayerOneScore();
+            updatePlayersScores();
+            if (firstplayer === gameData.data.data.user.userName) {
+              this.bannerW = true;
+              winnerCont.visible = true;
+              winnerText();
+              setTimeout(() => {
+                addCells(boardsize);
+                this.bannerW = false;
+                winnerCont.visible = false;
+                gameWrapper.visible = true;
+              }, 3000);
+            } else if (secondplayer === gameData.data.data.user.userName) {
+              this.bannerL = true;
+              loserCont.visible = true;
+              loserText();
+              setTimeout(() => {
+                addCells(boardsize);
+                this.bannerL = false;
+                loserCont.visible = false;
+                gameWrapper.visible = true;
+              }, 3000);
+            }
+          }
+
+          if (
+            secondPlayerScore > gameData.data.data.secpoint &&
+            secondPlayerScore !== gameData.data.data.scoreToPlay
+          ) {
+            gameData.data.data.secpoint++;
+            turnOImage.visible = false;
+            turnXImage.visible = true;
+            removeCells();
+            updatePlayerTwoScore();
+            updatePlayersScores();
+            if (firstplayer === gameData.data.data.user.userName) {
+              this.bannerL = true;
+              loserCont.visible = true;
+              loserText();
+              setTimeout(() => {
+                addCells(boardsize);
+                this.bannerL = false;
+                loserCont.visible = false;
+                gameWrapper.visible = true;
+              }, 3000);
+            } else if (secondplayer === gameData.data.data.user.userName) {
+              this.bannerW = true;
+              winnerCont.visible = true;
+              winnerText();
+              setTimeout(() => {
+                addCells(boardsize);
+                this.bannerW = false;
+                winnerCont.visible = false;
+                gameWrapper.visible = true;
+              }, 3000);
+            }
+          }
+
+          // THAT MEANS TIE
+          if (message.length === 11) {
+            if (
+              gameData.data.data.playerOne ===
+                gameData.data.data.user.userName ||
+              gameData.data.data.playerTwo === gameData.data.data.user.userName
+            ) {
+              turnOImage.visible = false;
+              turnXImage.visible = true;
+              removeCells();
+              this.bannerD = true;
+              tieCont.visible = true;
+              tieText();
+              setTimeout(() => {
+                gameWrapper.visible = true;
+                addCells(boardsize);
+                this.bannerD = false;
+                tieCont.visible = false;
+              }, 3000);
+            }
           }
         }
-      }
-    );
+      );
 
       this.connection.on('onreconnected', (joinableList, dict, userId) => {
         gameData.data.data.joinable = joinableList;
@@ -232,13 +243,34 @@ export class BoardComponent implements OnInit {
       });
 
       this.connection.on('alert', (code, message) => {
-        if (code === -1) {
-          // showPopUp();
-          console.warn(code)
-        } else if (code === 1) {
-          // hidePopUp();
-          console.warn(code)
-        } else if (code === 2) {
+
+        var timeleft;
+        
+
+        if(code === -1) {
+          timeleft = 20
+          document.getElementById("my-popup").style.display="block";
+          this.downloadTimer = setInterval(function(){
+          if(timeleft <= 20) {
+              document.getElementById("my-popup").innerHTML ="Opponent disconnected - "  + timeleft;
+              console.warn(timeleft)
+            } 
+            timeleft -= 1;
+          }, 1200);
+        } 
+        
+        else if(code === 1) {
+
+          document.getElementById("my-popup").style.display="none";
+          clearInterval(this.downloadTimer)
+
+          timeleft = 20
+          console.warn(timeleft)
+        }
+
+        else if (code === 2) {
+          document.getElementById("my-popup").style.display="none";
+          clearInterval(this.downloadTimer);
           this.connection.stop();
           removeCells();
           gameWrapper.visible = false;
@@ -253,24 +285,23 @@ export class BoardComponent implements OnInit {
         console.warn(code, message);
       });
 
-      this.connection.on('matchstart', (gameId) => {
-        
-      });
-
       this.connection.on('ongamecreate', (errorCode, errorMessage) => {
         this.ref.detectChanges();
       });
 
       this.connection.on('ongamejoin',(errorCode, gameId, errMessage, username) => {
-        waitForOpp.visible= false;
-        let oppConnected = new Text(gameData.data.data.sec + ' Connected, your Turn!', style3);
-        gameWrapper.addChild(oppConnected);
-        oppConnected.anchor.x = 0.5;
-        oppConnected.position.set(227.5,0);
+          waitForOpp.visible = false;
+          let oppConnected = new Text(
+            gameData.data.data.sec + ' Connected, your Turn!',
+            style3
+          );
+          gameWrapper.addChild(oppConnected);
+          oppConnected.anchor.x = 0.5;
+          oppConnected.position.set(227.5, 0);
 
-        setTimeout(() => {
-          oppConnected.visible = false;
-        },3000 )
+          setTimeout(() => {
+            oppConnected.visible = false;
+          }, 3000);
         }
       );
     }
@@ -282,7 +313,6 @@ export class BoardComponent implements OnInit {
       TextStyle = pixi.TextStyle;
 
     let turnX = true,
-      move = true,
       score = {
         player1: 0,
         player2: 0,
@@ -350,7 +380,6 @@ export class BoardComponent implements OnInit {
       fill: 'orange',
     });
 
-
     /*---------- CONTAINERS ----------*/
     let gameWrapper = new Container(); // INFO,GAMEBOARD CONT
     container.addChild(gameWrapper);
@@ -376,13 +405,18 @@ export class BoardComponent implements OnInit {
     container.addChild(seriesWinnerCont);
     seriesWinnerCont.visible = false;
 
-    /* ---------- GAME INFO ---------- */
+    let popupCont = new Container();
+    gameWrapper.addChild(popupCont);
+
+    // Draw moves after rejoin
     setTimeout(() => {
-      if(gameData.data.data.rejoined === true) {
+      if (gameData.data.data.rejoined === true) {
         drawMovesHistory();
         updatePlayersScores();
       }
     }, 100);
+
+    /* ---------- GAME INFO ---------- */
 
     let scoreText = new Text('Target score:', style1);
     gameWrapper.addChild(scoreText);
@@ -397,8 +431,7 @@ export class BoardComponent implements OnInit {
     scoreLine.alpha = 0.3;
 
     let firstPlayerName = new Text(
-        gameData.data.data.user.userName +
-        ', You are playing as X',
+      gameData.data.data.user.userName + ', You are playing as X',
       style2
     );
     gameWrapper.addChild(firstPlayerName);
@@ -415,41 +448,41 @@ export class BoardComponent implements OnInit {
     secondPlayerName.position.set(227.5, 30);
     secondPlayerName.visible = false;
 
-
     let waitForOpp = new Text('Waiting for your Opponent!', style4);
     gameWrapper.addChild(waitForOpp);
     waitForOpp.anchor.x = 0.5;
     waitForOpp.position.set(227.5, 0);
-    
 
-    if(gameData.data.data.rejoined === true && !gameData.data.data.sec) {
+    if (gameData.data.data.rejoined === true && !gameData.data.data.sec) {
       waitForOpp.visible = false;
     }
 
-    if(gameData.data.data.rejoined === true && gameData.data.data.playerOne) {
+    if (gameData.data.data.rejoined === true && gameData.data.data.playerOne) {
       waitForOpp.visible = false;
     }
 
     if (gameData.data.data.playerOne === gameData.data.data.user.userName) {
       firstPlayerName.visible = true;
     }
-    if(gameData.data.data.sec && gameData.data.data.rejoined !== true ) {
-      let yourOpp = new Text('You are playing against ' + gameData.data.data.first, style4);
+    if (gameData.data.data.sec && gameData.data.data.rejoined !== true) {
+      let yourOpp = new Text(
+        'You are playing against ' + gameData.data.data.first,
+        style4
+      );
       gameWrapper.addChild(yourOpp);
       yourOpp.anchor.x = 0.5;
       yourOpp.position.set(227.5, 0);
       setTimeout(() => {
         yourOpp.visible = false;
-      }, 3000)
+      }, 3000);
       waitForOpp.visible = false;
       secondPlayerName.visible = true;
     }
 
     setTimeout(() => {
-    firstPlayerName.visible = false;
-    secondPlayerName.visible = false;
+      firstPlayerName.visible = false;
+      secondPlayerName.visible = false;
     }, 5000);
-
 
     let player1 = new Text('Player X:', style1);
     gameWrapper.addChild(player1);
@@ -488,15 +521,9 @@ export class BoardComponent implements OnInit {
     turnOImage.visible = false;
 
 
-    let board = localStorage.getItem('boardsize')
-    let scoreT = localStorage.getItem('targetscore')
-    let boardsize = Number(board);
-    let scoretoplay = Number(scoreT)
-    // let boardsize = gameData.data.data.boardSize;
-    // let scoretoplay = gameData.data.data.scoreToPlay;
+    let boardsize = gameData.data.data.boardSize;
+    let scoretoplay = gameData.data.data.scoreToPlay;
     let squareSize = 400 / Math.sqrt(boardsize);
-
-    console.warn(boardsize, scoretoplay)
 
     let targetScore = (scoretoplay) => {
       var tScore = new Text(scoretoplay, style1);
@@ -539,9 +566,7 @@ export class BoardComponent implements OnInit {
             currentCell += 1;
           }
         }
-          currentCell += 1;
-
-
+        currentCell += 1;
       }
       throw 'invalid gameCell';
     };
@@ -553,18 +578,19 @@ export class BoardComponent implements OnInit {
     };
 
     // CREATING BOARD WITH CHOSEN PARAMETERS
-
       addCells(boardsize);
       targetScore(scoretoplay);
       gameWrapper.visible = true;
 
 
-
+    setTimeout(() => {
+      console.warn(gameData.data.data.boardSize, gameData.data.data.scoreToPlay)
+    }, 2000)
 
     let winnerText = () => {
       let winner = new Text('You won this match', style);
       winnerCont.addChild(winner);
-      winner.anchor.x = 0.5
+      winner.anchor.x = 0.5;
       winner.position.set(227.5, 160);
       gameWrapper.visible = false;
     };
@@ -572,7 +598,7 @@ export class BoardComponent implements OnInit {
     let loserText = () => {
       let loser = new Text('You Lose this match', style);
       loserCont.addChild(loser);
-      loser.anchor.x = 0.5
+      loser.anchor.x = 0.5;
       loser.position.set(227.5, 160);
       gameWrapper.visible = false;
     };
@@ -601,7 +627,7 @@ export class BoardComponent implements OnInit {
         document.body.removeChild;
         this.route.navigateByUrl('/lobby');
       });
-    }
+    };
 
     let seriesWinnerText = () => {
       let swinner = new Text('You won this Series', style);
@@ -744,7 +770,7 @@ export class BoardComponent implements OnInit {
     let updatePlayersScores = () => {
       playerOneScoreText.text = gameData.data.data.firstpoint;
       playerTwoScoreText.text = gameData.data.data.secpoint;
-    }
+    };
 
     let deleteBoard = () => {
       document.body.removeChild(this.app.view);
@@ -774,26 +800,72 @@ export class BoardComponent implements OnInit {
       document.getElementById("my-popup").style.display="block";
       let timeleft = 20;
       let downloadTimer = setInterval(function(){
-        if(timeleft <= 0){
+        if(timeleft === 0){
           document.getElementById("my-popup").style.display="none";
           clearInterval(downloadTimer);
         }
-         else {
+         else if(timeleft <= 20 ) {
           document.getElementById("my-popup").innerHTML = "Opponent disconnected - "  + timeleft;
         }
         timeleft -= 1;
       }, 1200);
     }
-
-    let hidePopUp = () => {
+  
+    function hidePopUp(){
       document.getElementById("my-popup").style.display="none";
     }
-  }
 
+    // function showPopUp() {
+    //   gameWrapper.addChild(popupCont)
+    //     let timer = 20;
+    //     this.downloadTimer = setInterval(function () {
+    //       if (timer <= 0) {
+    //         clearInterval(this.downloadTimer);
+    //         // timer = 20;
+    //       } else if(timer <= 20) {
+    //         this.timerText = new Text('Opponent Disconnected -', style1);
+    //         popupCont.addChild(this.timerText);
+    //         this.timerText.position.set(10, 20);
+  
+    //         this.timerPoint = new Text(timer, style1);
+    //         popupCont.addChild(this.timerPoint);
+    //         this.timerPoint.anchor.x = 0.5
+    //         this.timerPoint.position.set(295, 20);
+  
+    //         setTimeout(() => {
+    //           popupCont.removeChild(this.timerPoint)
+    //           popupCont.removeChild(this.timerText)
+    //         }, 1000)
+    //       }
+    //       timer -= 1;
+    //     }, 1200);
+
+    //     if(this.checkTime === true) {
+    //       timer = 20;
+    //       clearInterval(this.downloadTimer)
+    //       popupCont.removeChild(this.timerText)
+    //       popupCont.removeChild(this.timerPoint)
+    //     }
+    // }
+
+    // let hidePopUp = () => {
+    //   gameWrapper.removeChild(popupCont)
+    //   this.checkTime = true
+    // };
+
+  }
 
   ngOnDestroy(): void {
     this.app.destroy(true);
+    gameData.data.data.rejoined = false;
+    gameData.data.data.scoreToPlay = 0;
+    gameData.data.data.boardSize = 0;
+    console.warn('destroyed');
+    gameData.data.data.first = '';
+    gameData.data.data.sec = '';
     this.connection.stop();
+
+    clearInterval(this.downloadTimer);
   }
 
   sendMove(row, column) {

@@ -1,10 +1,13 @@
 <div class="lobby">
   <div class="card">
-    <img
+    <div class="card-img-top">
+      <img
       class="card-img-top"
       src="assets/images/tictac.jpg"
       alt="Card image cap"
     />
+    </div>
+
     <div class="card-body">
       <h5 class="card-title">Tic Tac Toe</h5>
       <div class="options">
@@ -39,7 +42,7 @@
               {{ score.score }}
             </option>
           </select>
-            <button (click)="sendData()" class="btn btn-primary" type="submit">
+            <button [disabled]="!gameForm.valid" (click)="sendData()" class="btn btn-primary" type="submit">
               Create Match
             </button>
 
@@ -67,7 +70,7 @@
                aria-hidden="false">
                 <div class="matchs" *ngFor="let match of tables">
                   <div class="match-info">
-                    <h3>Status: {{ match.stateId }}</h3>
+                    <h3>Id: {{ match.gameId }} </h3>
                     <h3>Board Size:{{ match.boardSize }}</h3>
                     <h3>Score: {{ match.targetScore }}</h3>
                   </div>
@@ -77,7 +80,7 @@
                 </div>
                 <div class="matchs" *ngFor="let match of lists">
                   <div class="match-info">
-                    <h3>Status: {{ match.stateId }}</h3>
+                    <h3>Id: {{ match.gameId }}</h3>
                     <h3>Board Size:{{ match.boardSize }}</h3>
                     <h3>Score: {{ match.targetScore }}</h3>
                   </div>

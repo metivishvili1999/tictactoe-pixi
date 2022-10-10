@@ -128,7 +128,6 @@ button {
   color: #fff;
   font-size: 15px;
   letter-spacing: 1px;
-  width: 120px;
   margin-bottom: 0;
   display: flex;
   justify-content: center;
@@ -159,10 +158,11 @@ button {
 }
 
 .tabs {
-  float: none;
   list-style: none;
-  position: relative;
-  text-align: left;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
 }
 
 .tabs li {
@@ -237,17 +237,18 @@ button {
     font-size: 15px;
     padding: 5px 15px;
   }
-
-  .togg {
-    padding-left: 145px;
-  }
 }
 
 @media (max-width: 771px) {
   .card {
-    width: 15rem;
+    width: 13rem;
+    height: 13rem;
     flex-direction: row;
-    margin-left: 10%;
+    margin-left: 20%;
+  }
+
+  .card-body {
+    padding: 15px;
   }
 
   .match-info h3 {
@@ -263,13 +264,16 @@ button {
   .match-info {
     padding: 0 0 0 20px;
   }
-
-  .togg {
-    padding-left: 80px;
-  }
 }
 
 @media (max-width: 545px) {
+
+  .card {
+    width: 11rem;
+    height: 11rem;
+    margin-left: 15%;
+  }
+
   .card-body {
     display: flex;
     flex-direction: column;
@@ -292,9 +296,6 @@ button {
     padding-right: 30px;
   }
 
-  .togg {
-    padding-left: 65px;
-  }
 }
 
 @media (max-width: 500px) {
@@ -343,21 +344,15 @@ button {
   }
 }
 
-@media only screen and (max-width: 576px) and (min-width: 320px) {
-  .card {
-    margin-left: 50px;
+@media only screen and (max-width: 455px) and (min-width: 320px) {
+  .tab-content {
+    min-width: 300px;
   }
+}
 
+@media only screen and (max-width: 576px) and (min-width: 320px) {
   .card-body {
     min-width: 100%;
-  }
-
-  .card-title {
-    font-size: 30px;
-  }
-
-  .togg {
-    padding-left: 60px;
   }
 }
 
@@ -367,28 +362,10 @@ button {
   }
 }
 
-@media (min-width: 771px) {
-  .card {
-    margin-left: 20%;
-  }
-}
 
 @media (min-width: 991px) {
-  .card {
-    margin-left: 25%;
-  }
-
-  .togg {
-    padding-left: 240px;
+  .match-info h3 {
+    width: 120px;
   }
 }
 
-@media (min-width: 1200px) {
-  .card {
-    margin-left: 30%;
-  }
-
-  .togg {
-    padding-left: 340px;
-  }
-}
