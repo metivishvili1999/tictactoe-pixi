@@ -16,10 +16,14 @@ button {
   border: none;
 }
 
-.btn:hover {
+.btn:hover:enabled {
   color: #df7005;
   box-shadow: 0 0 20px #11324d 0.6;
   background-color: #11324d;
+}
+
+.btn:hover:disabled {
+  cursor: not-allowed;
 }
 
 .select {

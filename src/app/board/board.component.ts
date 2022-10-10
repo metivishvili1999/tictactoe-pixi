@@ -67,21 +67,24 @@ export class BoardComponent implements OnInit, OnDestroy {
         });
 
       this.connection.on('getcurrentgame', (response) => {
-        console.warn(response)
         if ( response.length !== null) {
           gameData.data.data.activeGame = response.gameId;
           if (response.playerOne.userName == gameData.data.data.user.userName) {
             turnX
           }
         }
-
       });
-
 
       this.connection.on('disconnect', (response) => {
         this.connection.stop();
-        console.warn(response)
-      });
+        window.sessionStorage.clear();
+        localStorage.removeItem('sessionToken');
+        localStorage.removeItem('userName');
+        this.route.navigateByUrl('/home');
+        setTimeout(() => {
+          window.location.reload();
+        },200)
+    });
 
       this.connection.on('nextturn',(response, gameid, message, row, column, value) => {
           if (response === 1) {
@@ -249,29 +252,22 @@ export class BoardComponent implements OnInit, OnDestroy {
       });
 
       this.connection.on('alert', (code, message) => {
-
         var timeleft;
-        
-
         if(code === -1) {
           timeleft = 20
           document.getElementById("my-popup").style.display="block";
           this.downloadTimer = setInterval(function(){
-          if(timeleft <= 20) {
+          if(timeleft > 0 && timeleft <= 20) {
               document.getElementById("my-popup").innerHTML ="Opponent disconnected - "  + timeleft;
-              console.warn(timeleft)
             } 
             timeleft -= 1;
           }, 1200);
         } 
         
         else if(code === 1) {
-
           document.getElementById("my-popup").style.display="none";
           clearInterval(this.downloadTimer)
-
           timeleft = 20
-          console.warn(timeleft)
         }
 
         else if (code === 2) {
@@ -286,9 +282,7 @@ export class BoardComponent implements OnInit, OnDestroy {
           endOfSeries();
           turnX = !turnX;
         }
-
         this.ref.detectChanges();
-        console.warn(code, message);
       });
 
       this.connection.on('ongamecreate', (errorCode, errorMessage) => {
@@ -310,6 +304,10 @@ export class BoardComponent implements OnInit, OnDestroy {
           }, 3000);
         }
       );
+
+      this.connection.on('gethistory', (series) => {});
+      this.connection.on('getallgame', (series) => {});
+      this.connection.on('gamesforreconnect', (series) => {});
     }
 
     let Application = pixi.Application,
@@ -588,11 +586,6 @@ export class BoardComponent implements OnInit, OnDestroy {
       targetScore(scoretoplay);
       gameWrapper.visible = true;
 
-
-    setTimeout(() => {
-      console.warn(gameData.data.data.boardSize, gameData.data.data.scoreToPlay)
-    }, 2000)
-
     let winnerText = () => {
       let winner = new Text('You won this match', style);
       winnerCont.addChild(winner);
@@ -801,64 +794,6 @@ export class BoardComponent implements OnInit, OnDestroy {
         pops.visible = false;
       }, 700);
     };
-
-    function showPopUp() {
-      document.getElementById("my-popup").style.display="block";
-      let timeleft = 20;
-      let downloadTimer = setInterval(function(){
-        if(timeleft === 0){
-          document.getElementById("my-popup").style.display="none";
-          clearInterval(downloadTimer);
-        }
-         else if(timeleft <= 20 ) {
-          document.getElementById("my-popup").innerHTML = "Opponent disconnected - "  + timeleft;
-        }
-        timeleft -= 1;
-      }, 1200);
-    }
-  
-    function hidePopUp(){
-      document.getElementById("my-popup").style.display="none";
-    }
-
-    // function showPopUp() {
-    //   gameWrapper.addChild(popupCont)
-    //     let timer = 20;
-    //     this.downloadTimer = setInterval(function () {
-    //       if (timer <= 0) {
-    //         clearInterval(this.downloadTimer);
-    //         // timer = 20;
-    //       } else if(timer <= 20) {
-    //         this.timerText = new Text('Opponent Disconnected -', style1);
-    //         popupCont.addChild(this.timerText);
-    //         this.timerText.position.set(10, 20);
-  
-    //         this.timerPoint = new Text(timer, style1);
-    //         popupCont.addChild(this.timerPoint);
-    //         this.timerPoint.anchor.x = 0.5
-    //         this.timerPoint.position.set(295, 20);
-  
-    //         setTimeout(() => {
-    //           popupCont.removeChild(this.timerPoint)
-    //           popupCont.removeChild(this.timerText)
-    //         }, 1000)
-    //       }
-    //       timer -= 1;
-    //     }, 1200);
-
-    //     if(this.checkTime === true) {
-    //       timer = 20;
-    //       clearInterval(this.downloadTimer)
-    //       popupCont.removeChild(this.timerText)
-    //       popupCont.removeChild(this.timerPoint)
-    //     }
-    // }
-
-    // let hidePopUp = () => {
-    //   gameWrapper.removeChild(popupCont)
-    //   this.checkTime = true
-    // };
-
   }
 
   ngOnDestroy(): void {
@@ -866,11 +801,9 @@ export class BoardComponent implements OnInit, OnDestroy {
     gameData.data.data.rejoined = false;
     gameData.data.data.scoreToPlay = 0;
     gameData.data.data.boardSize = 0;
-    console.warn('destroyed');
     gameData.data.data.first = '';
     gameData.data.data.sec = '';
     this.connection.stop();
-
     clearInterval(this.downloadTimer);
   }
 

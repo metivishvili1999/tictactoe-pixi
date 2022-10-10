@@ -86,7 +86,6 @@ export class LobbyComponent implements OnInit {
         gameData.data.setboardSize(gamesArray[0].boardSize);
         gameData.data.setScore(gamesArray[0].targetScore);
         this.ref.detectChanges();
-        console.warn(gamesArray)
       });
 
       this.connection.on('getcurrentgame', (response, playerId) => {
@@ -98,7 +97,6 @@ export class LobbyComponent implements OnInit {
         gameData.data.data.sec = response.playerTwo.userName;
         this.route.navigateByUrl('/board').catch((err) => console.error(err));
         this.ref.detectChanges();
-        console.warn(response)
       });
 
       this.connection.on('onreconnected', (joinableList, dict, userId) => {
@@ -110,8 +108,6 @@ export class LobbyComponent implements OnInit {
         gameData.data.data.gamesHistory = series;
       });
 
-
-      
       this.connection.on('disconnect', (response) => {
           this.connection.stop();
           window.sessionStorage.clear();
@@ -121,7 +117,6 @@ export class LobbyComponent implements OnInit {
           setTimeout(() => {
             window.location.reload();
           },200)
-        console.warn(response)
       });
 
       this.connection.on('ongamerejoin',( errorCode,errMessage,gamesArray,movesArray,player,currentPlId) => {
@@ -132,6 +127,11 @@ export class LobbyComponent implements OnInit {
           gameData.data.data.secpoint = gamesArray.playerTwoScore;
         }
       );
+
+      this.connection.on('ongamejoin', (series) => {});
+      this.connection.on('nextturn', (series) => {});
+      this.connection.on('matchend', (series) => {});
+      this.connection.on('gameend', (series) => {});
     }
   }
 
@@ -147,7 +147,6 @@ export class LobbyComponent implements OnInit {
         });
       this.route.navigateByUrl('/board');
       gameData.data.data.rejoined = true;
-      console.warn(gameId)
     });
   }
 
@@ -186,7 +185,6 @@ export class LobbyComponent implements OnInit {
         })
         .then(() => {
           gameData.data.data.activeGame = gameId;
-          console.warn(gameId)
         });
     });
   }
