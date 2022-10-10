@@ -77,6 +77,12 @@ export class BoardComponent implements OnInit, OnDestroy {
 
       });
 
+
+      this.connection.on('disconnect', (response) => {
+        this.connection.stop();
+        console.warn(response)
+      });
+
       this.connection.on('nextturn',(response, gameid, message, row, column, value) => {
           if (response === 1) {
             gameData.data.data.posX = row;

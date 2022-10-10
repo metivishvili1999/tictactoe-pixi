@@ -110,6 +110,20 @@ export class LobbyComponent implements OnInit {
         gameData.data.data.gamesHistory = series;
       });
 
+
+      
+      this.connection.on('disconnect', (response) => {
+          this.connection.stop();
+          window.sessionStorage.clear();
+          localStorage.removeItem('sessionToken');
+          localStorage.removeItem('userName');
+          this.route.navigateByUrl('/home');
+          setTimeout(() => {
+            window.location.reload();
+          },200)
+        console.warn(response)
+      });
+
       this.connection.on('ongamerejoin',( errorCode,errMessage,gamesArray,movesArray,player,currentPlId) => {
           gameData.data.data.movesHistory = movesArray;
           gameData.data.data.playerOne = gamesArray.playerOne.userName;

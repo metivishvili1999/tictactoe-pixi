@@ -38,8 +38,6 @@ export class AppComponent implements OnInit {
     this.tokenStorageService.signOut();
     localStorage.removeItem('sessionToken');
     localStorage.removeItem('userName');
-    localStorage.removeItem('boardsize');
-    localStorage.removeItem('targetscore');
     window.location.reload();
   }
 
